@@ -29,7 +29,7 @@
 
 #define PLUGIN_VERSION			"1.0"
 #define PLUGIN_VERSION_REVISION	"custom"
-#define PLUGIN_VERSION_FULL		"Riot " ... PLUGIN_VERSION ... "." ... PLUGIN_VERSION_REVISION
+#define PLUGIN_VERSION_FULL		PLUGIN_VERSION ... "." ... PLUGIN_VERSION_REVISION
 
 #define FOLDER_CONFIGS	"configs/zombie_escape"
 
@@ -45,39 +45,15 @@
 #define TFTeam_Blue			3
 #define TFTeam_MAX			4
 
+#define TFTeam_Human	TFTeam_Blue
+#define TFTeam_Zombie	TFTeam_Red
+
 enum
 {
 	Version,
-	NextCharset,
 	Debugging,
 	
-	AggressiveOverlay,
-	AggressiveSwap,
-
-	SubpluginFolder,
-	FileCheck,
-	
-	SoundType,
-	BossTriple,
-	BossCrits,
-	BossHealing,
-	BossKnockback,
-	
-	BossVsBoss,
-	SpecTeam,
-	CaptureTime,
-	CaptureAlive,
-	HealthBar,
-	RefreshDmg,
-	RefreshTime,
-	DisguiseModels,
-	PlayerGlow,
-	BossSewer,
-	Telefrags,
-	
-	PrefBlacklist,
-	PrefToggle,
-	PrefSpecial,
+	ZombieRatio,
 	
 	AllowSpectators,
 	MovementFreeze,
@@ -91,42 +67,26 @@ enum
 
 ConVar Cvar[Cvar_MAX];
 
-int PlayersAlive[TFTeam_MAX];
-int MaxPlayersAlive[TFTeam_MAX];
-int Charset;
-bool Enabled;
-int RoundStatus;
-bool PluginsEnabled;
-Handle PlayerHud;
-Handle ThisPlugin;
-
 #include "zombie_escape/client.sp"
 #include "zombie_escape/stocks.sp"
 
-#include "freak_fortress_2/attributes.sp"
-#include "freak_fortress_2/bosses.sp"
+//#include "freak_fortress_2/attributes.sp"
 #include "freak_fortress_2/commands.sp"
 #include "freak_fortress_2/configs.sp"
 #include "freak_fortress_2/convars.sp"
-#include "freak_fortress_2/database.sp"
-#include "freak_fortress_2/dhooks.sp"
-#include "freak_fortress_2/econdata.sp"
+//#include "freak_fortress_2/database.sp"
+//#include "freak_fortress_2/dhooks.sp"
+//#include "freak_fortress_2/econdata.sp"
 #include "freak_fortress_2/events.sp"
-#include "freak_fortress_2/formula_parser.sp"
 #include "freak_fortress_2/forwards.sp"
-#include "freak_fortress_2/forwards_old.sp"
 #include "freak_fortress_2/gamemode.sp"
-#include "freak_fortress_2/goomba.sp"
 #include "freak_fortress_2/menu.sp"
-#include "freak_fortress_2/music.sp"
-#include "freak_fortress_2/natives.sp"
-#include "freak_fortress_2/natives_old.sp"
 #include "freak_fortress_2/preference.sp"
 #include "freak_fortress_2/sdkcalls.sp"
 #include "freak_fortress_2/sdkhooks.sp"
 #include "freak_fortress_2/steamworks.sp"
-#include "freak_fortress_2/tf2utils.sp"
-#include "freak_fortress_2/weapons.sp"
+//#include "freak_fortress_2/tf2utils.sp"
+//#include "freak_fortress_2/weapons.sp"
 
 public Plugin myinfo =
 {

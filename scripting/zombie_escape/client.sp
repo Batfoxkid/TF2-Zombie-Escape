@@ -17,24 +17,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-static ConfigMap BossMap[MAXTF2PLAYERS] = {null, ...};
-static int Queue[MAXTF2PLAYERS];
-static bool NoMusic[MAXTF2PLAYERS];
-static bool MusicShuffle[MAXTF2PLAYERS];
-static bool NoVoice[MAXTF2PLAYERS];
-static bool NoChanges[MAXTF2PLAYERS];
-static bool NoDmgHud[MAXTF2PLAYERS];
-static bool NoHud[MAXTF2PLAYERS];
-static char LastPlayed[MAXTF2PLAYERS][64];
-static bool Minion[MAXTF2PLAYERS];
-static bool Glowing[MAXTF2PLAYERS];
-static float GlowFor[MAXTF2PLAYERS];
-static float OverlayFor[MAXTF2PLAYERS];
-static float RefreshAt[MAXTF2PLAYERS];
-static int Damage[MAXTF2PLAYERS][6];
-static int TotalDamage[MAXTF2PLAYERS];
-static int Assist[MAXTF2PLAYERS];
-static int Index[MAXTF2PLAYERS];
+static bool PendingStrip[MAXTF2PLAYERS];
 
 methodmap Client
 {
@@ -42,88 +25,32 @@ methodmap Client
 	{
 		return view_as<Client>(client);
 	}
-	
-	property int Queue
+
+	property bool Zombie
 	{
 		public get()
 		{
-			return Queue[view_as<int>(this)];
+			return GetClientTeam(view_as<int>(this)) == TFTeam_Zombie;
 		}
-		public set(int amount)
+	}
+
+	property bool Human
+	{
+		public get()
 		{
-			Queue[view_as<int>(this)] = amount;
+			return GetClientTeam(view_as<int>(this)) == TFTeam_Human;
 		}
 	}
 	
-	property bool NoMusic
+	property bool PendingStrip
 	{
 		public get()
 		{
-			return NoMusic[view_as<int>(this)];
+			return PendingStrip[view_as<int>(this)];
 		}
 		public set(bool value)
 		{
-			NoMusic[view_as<int>(this)] = value;
-		}
-	}
-	
-	property bool MusicShuffle
-	{
-		public get()
-		{
-			return MusicShuffle[view_as<int>(this)];
-		}
-		public set(bool value)
-		{
-			MusicShuffle[view_as<int>(this)] = value;
-		}
-	}
-	
-	property bool NoVoice
-	{
-		public get()
-		{
-			return NoVoice[view_as<int>(this)];
-		}
-		public set(bool value)
-		{
-			NoVoice[view_as<int>(this)] = value;
-		}
-	}
-	
-	property bool NoChanges
-	{
-		public get()
-		{
-			return NoChanges[view_as<int>(this)];
-		}
-		public set(bool value)
-		{
-			NoChanges[view_as<int>(this)] = value;
-		}
-	}
-	
-	property bool NoDmgHud
-	{
-		public get()
-		{
-			return NoDmgHud[view_as<int>(this)];
-		}
-		public set(bool value)
-		{
-			NoDmgHud[view_as<int>(this)] = value;
-		}
-	}
-	
-	property bool NoHud
-	{
-		public get()
-		{
-			return NoHud[view_as<int>(this)];
-		}
-		public set(bool value)
-		{
-			NoHud[view_as<int>(this)] = value;
+			PendingStrip[view_as<int>(this)] = value;
 		}
 	}
 	
