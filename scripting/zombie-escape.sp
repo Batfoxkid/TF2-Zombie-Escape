@@ -70,23 +70,23 @@ ConVar Cvar[Cvar_MAX];
 #include "zombie_escape/client.sp"
 #include "zombie_escape/stocks.sp"
 
-//#include "freak_fortress_2/attributes.sp"
-#include "freak_fortress_2/commands.sp"
-#include "freak_fortress_2/configs.sp"
-#include "freak_fortress_2/convars.sp"
-//#include "freak_fortress_2/database.sp"
-//#include "freak_fortress_2/dhooks.sp"
-//#include "freak_fortress_2/econdata.sp"
-#include "freak_fortress_2/events.sp"
-#include "freak_fortress_2/forwards.sp"
-#include "freak_fortress_2/gamemode.sp"
-#include "freak_fortress_2/menu.sp"
-#include "freak_fortress_2/preference.sp"
-#include "freak_fortress_2/sdkcalls.sp"
-#include "freak_fortress_2/sdkhooks.sp"
-#include "freak_fortress_2/steamworks.sp"
-//#include "freak_fortress_2/tf2utils.sp"
-//#include "freak_fortress_2/weapons.sp"
+//#include "zombie_escape/attributes.sp"
+#include "zombie_escape/commands.sp"
+#include "zombie_escape/configs.sp"
+#include "zombie_escape/convars.sp"
+//#include "zombie_escape/database.sp"
+//#include "zombie_escape/dhooks.sp"
+//#include "zombie_escape/econdata.sp"
+#include "zombie_escape/events.sp"
+#include "zombie_escape/forwards.sp"
+#include "zombie_escape/gamemode.sp"
+#include "zombie_escape/menu.sp"
+#include "zombie_escape/preference.sp"
+#include "zombie_escape/sdkcalls.sp"
+#include "zombie_escape/sdkhooks.sp"
+#include "zombie_escape/steamworks.sp"
+//#include "zombie_escape/tf2utils.sp"
+//#include "zombie_escape/weapons.sp"
 
 public Plugin myinfo =
 {
@@ -159,18 +159,6 @@ public void OnMapStart()
 
 public void OnConfigsExecuted()
 {
-	char mapname[64];
-	GetCurrentMap(mapname, sizeof(mapname));
-	if(Configs_SetMap(mapname))
-	{
-		Charset = Cvar[NextCharset].IntValue;
-	}
-	else
-	{
-		Charset = -1;
-	}
-	
-	Bosses_BuildPacks(Charset, mapname);
 	ConVar_ConfigsExecuted();
 	Preference_ConfigsExecuted();
 	Weapons_ConfigsExecuted();

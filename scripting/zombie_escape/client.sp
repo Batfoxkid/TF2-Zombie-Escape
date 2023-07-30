@@ -18,6 +18,8 @@
 #pragma newdecls required
 
 static bool PendingStrip[MAXTF2PLAYERS];
+static bool NoChanges[MAXTF2PLAYERS];
+static int Damage[MAXTF2PLAYERS][6];
 
 methodmap Client
 {
@@ -52,6 +54,40 @@ methodmap Client
 		{
 			PendingStrip[view_as<int>(this)] = value;
 		}
+	}
+	
+	property bool NoChanges
+	{
+		public get()
+		{
+			return NoChanges[view_as<int>(this)];
+		}
+		public set(bool value)
+		{
+			NoChanges[view_as<int>(this)] = value;
+		}
+	}
+	
+	property int Damage
+	{
+		public get()
+		{
+			return Damage[view_as<int>(this)][0];
+		}
+		public set(int amount)
+		{
+			Damage[view_as<int>(this)][0] = amount;
+		}
+	}
+	
+	public int GetDamage(int slot)
+	{
+		return Damage[view_as<int>(this)][slot + 1];
+	}
+	
+	public void SetDamage(int slot, int damage)
+	{
+		Damage[view_as<int>(this)][slot + 1] = damage;
 	}
 	
 	public void ResetByDeath()

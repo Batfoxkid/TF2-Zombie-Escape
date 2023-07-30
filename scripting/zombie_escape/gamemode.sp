@@ -166,3 +166,18 @@ void Gamemode_InventoryApplication(int client)
 	if(!Client(client).NoChanges && GetClientMenu(client) == MenuSource_None)
 		Weapons_ChangeMenu(client, 30);
 }
+
+void Gamemode_PlayerDeath(int client, int attacker)
+{
+	if(Client(client).Human && (attacker > 0 && attacker <= MaxClients && Client(attacker).Zombie))
+	{
+		float pos[3], ang[3];
+		GetClientAbsOrigin(client, pos);
+		GetClientEyeAngles(client, ang);
+
+		ChangeClientTeam(client, TFTeam_Zombie);
+		TF2_RespawnPlayer(client);
+		TeleportEntity(client, pos, ang, NULL_VECTOR);
+		TF2_StunPlayer(client, 5.0, 1.0, TF_STUNFLAGS_NORMALBONK);
+	}
+}

@@ -15,159 +15,9 @@
 **/
 
 #pragma semicolon 1
-#pragma newdecls required
+#pragma newdecls require
 
-static float JarateDamage[MAXTF2PLAYERS];
-static int JarateApplyer[MAXTF2PLAYERS];
-static float MarkDamage[MAXTF2PLAYERS];
-static int MarkApplyer[MAXTF2PLAYERS];
-
-void Attributes_PluginStart()
-{
-	HookUserMessage(GetUserMessageId("PlayerJarated"), Attributes_OnJarateBoss);
-}
-
-public Action Attributes_OnJarateBoss(UserMsg msg_id, BfRead bf, const int[] players, int playersNum, bool reliable, bool init)
-{
-	int attacker = bf.ReadByte();
-	int victim = bf.ReadByte();
-	if(Client(victim).IsBoss)
-	{
-		if(Attributes_FindOnPlayer(attacker, 387))	// rage on kill
-		{
-			float rage = GetEntPropFloat(attacker, Prop_Send, "m_flRageMeter") + 0.115;
-			if(rage > 100.0)
-				rage = 100.0;
-			
-			SetEntPropFloat(attacker, Prop_Send, "m_flRageMeter", rage);
-		}
-		
-		int weapon = GetPlayerWeaponSlot(attacker, TFWeaponSlot_Secondary);
-		if(weapon != -1)
-		{
-			char classname[36];
-			if(GetEntityClassname(weapon, classname, sizeof(classname)))
-			{
-				if(StrEqual(classname, "tf_weapon_jar"))
-				{
-					if(JarateDamage[victim] < 0.0)
-						JarateDamage[victim] = 0.0;
-					
-					JarateDamage[victim] += 1500.0;
-					JarateApplyer[victim] = attacker;
-				}
-				else if(StrEqual(classname, "tf_weapon_jar_milk"))
-				{
-					DataPack pack = new DataPack();
-					RequestFrame(ReapplyMilk, pack);
-					pack.WriteCell(GetClientUserId(victim));
-					pack.WriteCell(GetClientUserId(attacker));
-				}
-			}
-		}
-	}
-	return Plugin_Continue;
-}
-
-public void ReapplyMilk(DataPack pack)
-{
-	pack.Reset();
-	
-	int victim = GetClientOfUserId(pack.ReadCell());
-	if(victim)
-	{
-		TF2_RemoveCondition(victim, TFCond_Milked);
-		TF2_AddCondition(victim, TFCond_Milked, 5.0, GetClientOfUserId(pack.ReadCell()));
-	}
-	
-	delete pack;
-}
-
-bool Attributes_OnBackstabBoss(int attacker, int victim, float &damage, int weapon, bool killfeed)
-{
-	if(Attributes_FindOnPlayer(attacker, 166))	// add cloak on hit
-	{
-		// Nerfs the insane power of the L'Etranger
-		SetEntPropFloat(attacker, Prop_Send, "m_flStealthNextChangeTime", GetGameTime()+2.0);
-	}
-	
-	if(Attributes_FindOnWeapon(attacker, weapon, 217))	// sanguisuge
-	{
-		int maxoverheal = TF2U_GetMaxOverheal(attacker) * 2;	// 250% overheal (from 200% overheal)
-		int health = GetClientHealth(attacker);
-		if(health < maxoverheal)
-		{
-			SetEntityHealth(attacker, maxoverheal);
-			ApplySelfHealEvent(attacker, maxoverheal - health);
-			
-			if(TF2_IsPlayerInCondition(attacker, TFCond_OnFire))
-				TF2_RemoveCondition(attacker, TFCond_OnFire);
-			
-			if(TF2_IsPlayerInCondition(attacker, TFCond_Bleeding))
-				TF2_RemoveCondition(attacker, TFCond_Bleeding);
-			
-			if(TF2_IsPlayerInCondition(attacker, TFCond_Plague))
-				TF2_RemoveCondition(attacker, TFCond_Plague);
-		}
-	}
-	
-	float value = Attributes_FindOnPlayer(attacker, 296);	// sapper kills collect crits
-	if(value)
-		SetEntProp(attacker, Prop_Send, "m_iRevengeCrits", GetEntProp(attacker, Prop_Send, "m_iRevengeCrits")+RoundFloat(value));
-	
-	value = Attributes_FindOnWeapon(attacker, weapon, 399, true, 1.0);	// armor piercing
-	if(value != 1.0)
-		damage *= value;
-	
-	bool silent = view_as<bool>(Attributes_FindOnWeapon(attacker, weapon, 156));	// silent killer
-	
-	if(killfeed)
-	{
-		int assister = -1;
-		for(int i = 1; i <= MaxClients; i++)
-		{
-			if(attacker != i && IsClientInGame(i) && IsPlayerAlive(i))
-			{
-				int entity = GetPlayerWeaponSlot(i, TFWeaponSlot_Secondary);
-				if(entity != -1 &&
-				   HasEntProp(entity, Prop_Send, "m_bHealing") &&
-				   GetEntProp(entity, Prop_Send, "m_bHealing") &&
-				   GetEntPropEnt(entity, Prop_Send, "m_hHealingTarget") == attacker)
-				{
-					assister = i;
-					break;
-				}
-			}
-		}
-		
-		Event event = CreateEvent("player_death", true);
-		
-		event.SetInt("userid", GetClientUserId(victim));
-		event.SetInt("attacker", GetClientUserId(attacker));
-		event.SetInt("assister", assister == -1 ? assister : GetClientUserId(assister));
-		event.SetInt("weaponid", weapon);
-		event.SetString("weapon", "backstab");
-		event.SetString("weapon_logclassname", "ff2_notice");
-		event.SetInt("customkill", TF_CUSTOM_BACKSTAB);
-		event.SetInt("crit_type", 2);
-		
-		int stabs = ++Client(attacker).Stabs;
-		event.SetInt("kill_streak_total", stabs);
-		event.SetInt("kill_streak_wep", stabs);
-		
-		int team = GetClientTeam(attacker);
-		for(int i = 1; i <= MaxClients; i++)
-		{
-			if(i == attacker || i == assister || (!silent && i == victim) || (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i)==team))
-				event.FireToClient(i);
-		}
-		
-		event.Cancel();
-	}
-	return silent;
-}
-
-void Attributes_OnHitBossPre(int attacker, int victim, int &damagetype, int weapon, int &critType)
+void Attributes_OnHitZombiePre(float &damage, int &damagetype, int weapon, int &critType)
 {
 	if(weapon != -1 && HasEntProp(weapon, Prop_Send, "m_AttributeList"))
 	{
@@ -179,30 +29,16 @@ void Attributes_OnHitBossPre(int attacker, int victim, int &damagetype, int weap
 				// Ullapool Caber gets a critical explosion
 				if(!GetEntProp(weapon, Prop_Send, "m_iDetonated"))
 				{
+					damage *= 10.0;
 					damagetype |= DMG_CRIT;
 					critType = 2;
-					
-					if(Cvar[SoundType].BoolValue)
-					{
-						Bosses_PlaySoundToAll(victim, "sound_cabered", _, _, _, _, _, 2.0);
-					}
-					else
-					{
-						Bosses_PlaySoundToAll(victim, "sound_cabered", _, victim, SNDCHAN_AUTO, SNDLEVEL_AIRCRAFT, _, 2.0);
-					}
 				}
 			}
 		}
 	}
-	
-	if(!critType && ((TF2_IsPlayerInCondition(attacker, TFCond_BlastJumping) && Attributes_FindOnWeapon(attacker, weapon, 621)) ||	// rocketjump attackrate bonus
-	   (TF2_IsPlayerInCondition(attacker, TFCond_DisguiseRemoved) && Attributes_FindOnWeapon(attacker, weapon, 410)))) 	// damage bonus while disguised
-	{
-		critType = 1;
-	}
 }
 
-void Attributes_OnHitBoss(int attacker, int victim, int inflictor, float fdamage, int weapon, int damagecustom)
+void Attributes_OnHitZombie(int attacker, int victim, int inflictor, float fdamage, int weapon, int damagecustom)
 {
 	if(weapon != -1 && !HasEntProp(weapon, Prop_Send, "m_AttributeList"))
 		weapon = -1;
@@ -222,11 +58,9 @@ void Attributes_OnHitBoss(int attacker, int victim, int inflictor, float fdamage
 	int lastPlayerDamage = Client(attacker).Damage;
 	int lastWeaponDamage = Client(attacker).GetDamage(slot);
 	
-	int idamage = RoundFloat(fdamage);
+	int idamage = damagecustom == TF_CUSTOM_BACKSTAB ? GetClientHealth(victim) : RoundFloat(fdamage);
 	Client(attacker).Damage = lastPlayerDamage + idamage;
 	Client(attacker).SetDamage(slot, lastWeaponDamage + idamage);
-	
-	Weapons_OnHitBoss(attacker, Client(attacker).Damage, lastPlayerDamage);
 	
 	float value = Attributes_FindOnPlayer(attacker, 203);	// drop health pack on kill
 	if(value > 0.0)
@@ -255,6 +89,10 @@ void Attributes_OnHitBoss(int attacker, int victim, int inflictor, float fdamage
 					velocity[1] = GetRandomFloat(-10.0, 10.0);
 					TeleportEntity(entity, position, _, velocity);
 					SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", attacker);
+					
+					SetVariantString("OnUser4 !self:Kill::30:1,0,1");
+					AcceptEntityInput(entity, "AddOutput");
+					AcceptEntityInput(entity, "FireUser4");
 				}
 			}
 		}
@@ -276,18 +114,9 @@ void Attributes_OnHitBoss(int attacker, int victim, int inflictor, float fdamage
 	if(Attributes_FindOnPlayer(attacker, 418) > 0.0)	// boost on damage
 	{
 		DataPack pack = new DataPack();
-		if(Enabled)
-		{
-			CreateDataTimer(0.1, Attributes_BoostDrainStack, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
-			pack.WriteCell(GetClientUserId(attacker));
-			pack.WriteFloat(fdamage / 1000.0);
-		}
-		else
-		{
-			CreateDataTimer(0.5, Attributes_BoostDrainStack, pack, TIMER_FLAG_NO_MAPCHANGE);
-			pack.WriteCell(GetClientUserId(attacker));
-			pack.WriteFloat(fdamage / 2.0);
-		}
+		CreateDataTimer(1.0, Attributes_BoostDrainStack, pack, TIMER_FLAG_NO_MAPCHANGE);
+		pack.WriteCell(GetClientUserId(attacker));
+		pack.WriteFloat(fdamage / 2.0);
 	}
 	
 	if(damagecustom != TF_CUSTOM_BURNING && damagecustom != TF_CUSTOM_BLEEDING)
@@ -329,7 +158,6 @@ void Attributes_OnHitBoss(int attacker, int victim, int inflictor, float fdamage
 						int i;
 						while(TF2_GetItem(target, entity, i))
 						{
-							SetEntProp(entity, Prop_Send, "m_iAccountID", 0);
 							Address attrib = TF2Attrib_GetByDefIndex(entity, 28);
 							if(attrib != Address_Null)
 							{
@@ -363,44 +191,6 @@ void Attributes_OnHitBoss(int attacker, int victim, int inflictor, float fdamage
 			}
 			
 			SetEntPropFloat(attacker, Prop_Send, "m_flCloakMeter", cloak);
-		}
-		
-		if(Attributes_FindOnWeapon(attacker, weapon, 175))	// jarate duration
-		{
-			if(JarateDamage[victim] < 0)
-				JarateDamage[victim] = 0.0;
-			
-			JarateApplyer[victim] = attacker;
-			JarateDamage[victim] += fdamage;
-		}
-		else if(Attributes_FindOnWeapon(attacker, weapon, 218))	// mark for death
-		{
-			MarkApplyer[victim] = attacker;
-			MarkDamage[victim] = 500.0;
-		}
-		else if(TF2_IsPlayerInCondition(victim, TFCond_Jarated))
-		{
-			JarateDamage[victim] -= fdamage;
-			if(JarateApplyer[victim])
-			{
-				Client(JarateApplyer[victim]).Assist += RoundFloat(fdamage * 0.35);
-				Client(JarateApplyer[victim]).RefreshAt = 0.0;
-			}
-			
-			if(JarateDamage[victim] <= 0.0)
-				TF2_RemoveCondition(victim, TFCond_Jarated);
-		}
-		else if(TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeath))
-		{
-			MarkDamage[victim] -= fdamage;
-			if(MarkApplyer[victim])
-			{
-				Client(MarkApplyer[victim]).Assist += RoundFloat(fdamage * 0.35);
-				Client(MarkApplyer[victim]).RefreshAt = 0.0;
-			}
-			
-			if(MarkDamage[victim] <= 0.0)
-				TF2_RemoveCondition(victim, TFCond_MarkedForDeath);
 		}
 		
 		value = Attributes_FindOnWeapon(attacker, weapon, 180);	// heal on kill
@@ -486,7 +276,7 @@ void Attributes_OnHitBoss(int attacker, int victim, int inflictor, float fdamage
 		
 		if(Attributes_FindOnWeapon(attacker, weapon, 644))	// clipsize increase on kill
 		{
-			int amount = DamageGoal(375, Client(attacker).GetDamage(slot), lastWeaponDamage);
+			int amount = DamageGoal(450, Client(attacker).GetDamage(slot), lastWeaponDamage);
 			if(amount)
 				SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations")+amount);
 		}
@@ -502,89 +292,16 @@ void Attributes_OnHitBoss(int attacker, int victim, int inflictor, float fdamage
 			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations")+1);
 	}
 	
-	int amount = DamageGoal(450, Client(attacker).GetDamage(slot), lastWeaponDamage);
-	if(amount)
+	if(slot == TFWeaponSlot_Building)
 	{
-		if(slot == TFWeaponSlot_Building)
+		int amount = DamageGoal(450, Client(attacker).GetDamage(slot), lastWeaponDamage);
+		if(amount)
 		{
 			if(inflictor != -1 && GetEntityClassname(inflictor, classname, sizeof(classname)) && !StrContains(classname, "obj_sentrygun"))
 				SetEntProp(inflictor, Prop_Send, "m_iKills", GetEntProp(inflictor, Prop_Send, "m_iKills") + 1);
 			
 			weapon = GetPlayerWeaponSlot(attacker, TFWeaponSlot_Grenade);
 			slot = TFWeaponSlot_Grenade;
-		}
-		
-		if(Attributes_FindOnWeapon(attacker, weapon, 2025))	// killstreak tier
-		{
-			int lastStreak = GetEntProp(attacker, Prop_Send, "m_nStreaks", _, slot);
-			int streak = lastStreak + amount;
-			SetEntProp(attacker, Prop_Send, "m_nStreaks", streak, _, slot);
-			
-			int total = streak;
-			for(int i; i < 4; i++)
-			{
-				if(i != slot)
-					total += GetEntProp(attacker, Prop_Send, "m_nStreaks", _, i);
-			}
-			
-			if(DamageGoal(5, streak, lastStreak))
-			{
-				Event event = CreateEvent("player_death", true);
-				
-				event.SetInt("userid", GetClientUserId(victim));
-				event.SetInt("attacker", GetClientUserId(attacker));
-				event.SetInt("inflictor_entindex", inflictor);
-				event.SetInt("weaponid", weapon);
-				event.SetInt("kill_streak_total", total);
-				event.SetInt("kill_streak_wep", streak);
-				event.SetInt("crit_type", streak > 10);
-				event.SetString("weapon_logclassname", "ff2_killstreak");
-				
-				if(weapon != -1)
-				{
-					char buffer[32];
-					if(TFED_GetItemDefinitionString(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"), "item_iconname", buffer, sizeof(buffer)))
-						event.SetString("weapon", buffer);
-				}
-				
-				int team = GetClientTeam(attacker);
-				for(int i = 1; i <= MaxClients; i++)
-				{
-					if(i == attacker || (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i)==team))
-						event.FireToClient(i);
-				}
-				
-				event.Cancel();
-			}
-		}
-		else if(damagecustom != TF_CUSTOM_BACKSTAB && damagecustom != TF_CUSTOM_TELEFRAG && DamageGoal(2250, Client(attacker).GetDamage(slot), lastWeaponDamage))
-		{
-			int total;
-			for(int i; i < 4; i++)
-			{
-				total += GetEntProp(attacker, Prop_Send, "m_nStreaks", _, i);
-			}
-			
-			Event event = CreateEvent("player_death", true);
-			
-			event.SetInt("userid", GetClientUserId(victim));
-			event.SetInt("attacker", GetClientUserId(attacker));
-			event.SetInt("inflictor_entindex", inflictor);
-			event.SetInt("weaponid", weapon);
-			event.SetInt("kill_streak_total", total);
-			event.SetInt("kill_streak_wep", 0);
-			event.SetInt("crit_type", 0);
-			event.SetString("weapon_logclassname", "ff2_killstreak");
-			
-			if(weapon != -1)
-			{
-				char buffer[32];
-				if(TFED_GetItemDefinitionString(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"), "item_iconname", buffer, sizeof(buffer)))
-					event.SetString("weapon", buffer);
-			}
-			
-			event.FireToClient(attacker);
-			event.Cancel();
 		}
 	}
 }
@@ -739,15 +456,13 @@ public Action Attributes_BoostDrainStack(Handle timer, DataPack pack)
 {
 	pack.Reset();
 	int client = GetClientOfUserId(pack.ReadCell());
-	if(client && IsPlayerAlive(client))
+	if(client && IsPlayerAlive(client) && Client(client).Human)
 	{
 		float hype = GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") - pack.ReadFloat();
 		if(hype < 0.0)
 			hype = 0.0;
 		
 		SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", hype);
-		if(Enabled && RoundStatus == 1)
-			return Plugin_Continue;
 	}
 	return Plugin_Stop;
 }
