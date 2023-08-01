@@ -52,9 +52,9 @@ void DHook_Setup()
 	CreateDetour(gamedata, "CTFWeaponBaseMelee::DoSwingTraceInternal", DHook_DoSwingTracePre, DHook_DoSwingTracePost);
 	
 	ForceRespawn = CreateHook(gamedata, "CBasePlayer::ForceRespawn");
+	HookItemIterateAttribute = CreateHook(gamedata, "CEconItemView::IterateAttributes");
 	RoundRespawn = CreateHook(gamedata, "CTeamplayRoundBasedRules::RoundRespawn");
 	ApplyOnInjured = CreateHook(gamedata, "CTFWeaponBase::ApplyOnInjuredAttributes");
-	HookItemIterateAttribute = CreateHook(gamedata, "CEconItemView::IterateAttributes");
 
 	EconItemOffset = FindSendPropInfo("CEconEntity", "EconItemOffset");
 	FindSendPropInfo("CEconEntity", "EconViewAttribsOffset", _, _, EconViewAttribsOffset);

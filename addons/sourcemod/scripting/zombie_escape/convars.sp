@@ -31,9 +31,9 @@ static bool CvarHooked;
 void ConVar_PluginStart()
 {
 	Cvar[Version] = CreateConVar("ze_version", PLUGIN_VERSION_FULL, "Zombie Escape Version", FCVAR_NOTIFY|FCVAR_DONTRECORD);
-	Cvar[Debugging] = CreateConVar("ze_debug", "0", "If to display debug outputs", FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
+	Cvar[Debugging] = CreateConVar("ze_debug", "1", "If to display debug outputs", FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	
-	Cvar[ZombieRatio] = CreateConVar("zr_game_ratio", "0.2", "Zombies to total players at the start of a round", _, true, 0.0, true, 1.0);
+	Cvar[ZombieRatio] = CreateConVar("ze_map_infect_ratio", "0.15", "Zombies to total players at the start of a round", _, true, 0.0, true, 1.0);
 	
 	AutoExecConfig(false, "ZombieEscape");
 	

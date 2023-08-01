@@ -61,14 +61,22 @@ void Gamemode_RoundStart()
 		}
 	}
 	
-	SortIntegers(player, players, Sort_Random);
-
-	for(int i; i < players; i++)
+	if(players > 2)
 	{
-		TF2_RemovePlayerDisguise(player[i]);
-		SDKCall_ChangeClientTeam(player[i], TFTeam_Zombie);
-		TF2_RegeneratePlayer(player[i]);
-		TF2_StunPlayer(player[i], 15.0, 1.0, TF_STUNFLAGS_NORMALBONK);
+		SortIntegers(player, players, Sort_Random);
+
+		players = RoundFloat(players * ze_map_infect_ratio.FloatValue);
+		if(!players)
+			players = 1;
+
+		for(int i; i < players; i++)
+		{
+			TF2_RemovePlayerDisguise(player[i]);
+			SDKCall_ChangeClientTeam(player[i], TFTeam_Zombie);
+			TF2_RegeneratePlayer(player[i]);
+			TF2_StunPlayer(player[i], 15.0, 1.0, TF_STUNFLAGS_NORMALBONK);
+			TF2_AddCondition(player[i], TFCond_UberchargedCanteen, 15.0);
+		}
 	}
 
 	int entity = -1;

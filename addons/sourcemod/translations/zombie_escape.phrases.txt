@@ -1,0 +1,95 @@
+"Phrases"
+{
+	"Prefix"
+	{
+		"en"		"{blue}[ZE]{default} "
+	}
+	"Available Commands"
+	{
+		"en"		"ze - Main Menu\nzeweapons - View Weapon Changes\nzemusic - Music Settings"
+	}
+	
+	"Preference Updated"
+	{
+		"en"		"Your preferences and queue points were updated."
+	}
+	
+	"Command Weapon"
+	{
+		"en"		"View Weapon Changes (/zeweapons)"
+	}
+	"Command Music"
+	{
+		"en"		"Music Settings (/zemusic)"
+	}
+	
+	"Weapon Menu"
+	{
+		"en"		"FF2 Weapon Changes\n "
+	}
+	"Disable Weapon Changes"
+	{
+		"en"		"Disable Pop-Up Menu"
+	}
+	"Enable Weapon Changes"
+	{
+		"en"		"Enable Pop-Up Menu"
+	}
+	"Weapon Stripped"
+	{
+		"en"		"Stripped Existing Attributes"
+	}
+	"Primary"
+	{
+		"en"		"Primary"
+	}
+	"Secondary"
+	{
+		"en"		"Secondary"
+	}
+	"Melee"
+	{
+		"en"		"Melee"
+	}
+	"PDA"
+	{
+		"en"		"PDA"
+	}
+	"Utility"
+	{
+		"en"		"Utility"
+	}
+	"Building"
+	{
+		"en"		"Building"
+	}
+	"Action"
+	{
+		"en"		"Action"
+	}
+	"custom DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"{4}"
+	}
+	"boost limit DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Successive hits decreases boost over time"
+	}
+	"teleport no spawn DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Unable to teleport"
+	}
+	"vaccinator DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Resistances effect melee hits"
+	}
+	"cloak and dagger no DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Cloak Type: Normal."
+	}
+}

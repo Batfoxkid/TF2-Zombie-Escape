@@ -1,0 +1,201 @@
+"Games"
+{
+	"tf"
+	{
+		"Signatures"
+		{
+			"CTFPlayer::CanPickupDroppedWeapon"
+			{
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer22CanPickupDroppedWeaponEPK16CTFDroppedWeapon"
+				"windows"	"\x55\x8B\xEC\x53\x8B\x5D\x08\x56\x8B\xF1\x80\xBB\x04\x05\x00\x00\x00"
+			}
+			"CTFPlayer::CheckBlockBackstab"
+			{
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer18CheckBlockBackstabEPS_"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\x8B\xF9\x8D\x9F\xE0\x1A\x00\x00"
+			}
+			"CTFPlayer::DropAmmoPack"
+			{
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer12DropAmmoPackERK15CTakeDamageInfobb"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x28\x53\x8B\xD9\xC7\x45\xFC\x00\x00\x00\x00"
+			}
+			"CTFPlayer::RegenThink"
+			{
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
+			}
+			"CTFPlayer::TeamFortress_SetSpeed"
+			{
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer21TeamFortress_SetSpeedEv"
+				"windows"	"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x1C\x53"
+			}
+			"CTFWeaponBaseMelee::DoSwingTraceInternal"
+			{
+  			  	"library"	"server"
+    				"linux"		"@_ZN18CTFWeaponBaseMelee20DoSwingTraceInternalER10CGameTracebP10CUtlVectorIS0_10CUtlMemoryIS0_iEE"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x38\x05\x00\x00\xA1\x2A\x2A\x2A\x2A"
+			}
+		}
+		"Offsets"
+		{
+			"CBasePlayer::ForceRespawn"
+			{
+				"linux"		"337"
+				"windows"	"336"
+			}
+			"CEconItemView::IterateAttributes"
+			{
+				"linux"		"19"
+				"windows"	"18"
+			}
+			"CTeamplayRoundBasedRules::RoundRespawn"
+			{
+				"linux"		"231"
+				"windows"	"229"
+			}
+			"CTeam::AddPlayer"
+			{
+				"linux"		"209"
+				"windows"	"208"
+			}
+			"CTeam::RemovePlayer"
+			{
+				"linux"		"210"
+				"windows"	"209"
+			}
+			"CTFWeaponBase::ApplyOnInjuredAttributes"
+			{
+				"linux"		"425"
+				"windows"	"418"
+			}
+			"m_bitsDamageType"
+			{
+				"linux"		"60"
+				"windows"	"60"
+			}
+		}
+		"Functions"
+		{
+			"CBasePlayer::ForceRespawn"
+			{
+				"offset"	"CBasePlayer::ForceRespawn"
+				"hooktype"	"entity"
+				"return"	"void"
+				"this"		"entity"
+			}
+			"CEconItemView::IterateAttributes"
+			{
+				"offset"	"CEconItemView::IterateAttributes"
+				"hooktype"	"raw"
+				"return"	"void"
+				"this"		"address"
+				"arguments"
+				{
+					"IEconItemAttributeIterator"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
+			"CTeamplayRoundBasedRules::RoundRespawn"
+			{
+				"offset"	"CTeamplayRoundBasedRules::RoundRespawn"
+				"hooktype"	"gamerules"
+				"return"	"void"
+				"this"		"ignore"
+			}
+			"CTFPlayer::CanPickupDroppedWeapon"
+			{
+				"signature"	"CTFPlayer::CanPickupDroppedWeapon"
+				"callconv"	"thiscall"
+				"return"	"bool"
+				"this"		"entity"
+				"arguments"
+				{
+					"pWeapon"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFPlayer::DropAmmoPack"
+			{
+				"signature"	"CTFPlayer::DropAmmoPack"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"info"
+					{
+						"type"	"objectptr"
+					}
+					"bEmpty"
+					{
+						"type"	"bool"
+					}
+					"bDisguisedWeapon"
+					{
+						"type"	"bool"
+					}
+				}
+			}
+			"CTFPlayer::RegenThink"
+			{
+				"signature"	"CTFPlayer::RegenThink"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+			}
+			"CTFWeaponBase::ApplyOnInjuredAttributes"
+			{
+				"offset"	"CTFWeaponBase::ApplyOnInjuredAttributes"
+				"hooktype"	"entity"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"pVictim"
+					{
+						"type"	"cbaseentity"
+					}
+					"pAttacker"
+					{
+						"type"	"cbaseentity"
+					}
+					"info"
+					{
+						"type"	"int"
+					}
+				}
+			}
+			"CTFWeaponBaseMelee::DoSwingTraceInternal"
+			{
+				"signature"	"CTFWeaponBaseMelee::DoSwingTraceInternal"
+				"callconv"    	"thiscall"
+				"return"	"bool"
+				"this"		"entity"
+				"arguments"
+				{
+					"trace"
+					{
+						"type"	"objectptr"
+					}
+					"bCleave"
+					{
+						"type"	"bool"
+					}
+					"pTargetTraceVector"
+					{
+						"type"	"vectorptr"
+					}
+				}
+			}
+		}
+	}
+}
