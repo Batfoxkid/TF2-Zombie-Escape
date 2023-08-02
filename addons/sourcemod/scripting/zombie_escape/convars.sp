@@ -34,6 +34,7 @@ void ConVar_PluginStart()
 	Cvar[Debugging] = CreateConVar("ze_debug", "1", "If to display debug outputs", FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	
 	Cvar[ZombieRatio] = CreateConVar("ze_map_infect_ratio", "0.15", "Zombies to total players at the start of a round", _, true, 0.0, true, 1.0);
+	Cvar[ZombieUpward] = CreateConVar("ze_zombie_upward_knockback", "0.0", "Amount of extra upward knockback");
 	
 	AutoExecConfig(false, "ZombieEscape");
 	
@@ -46,9 +47,11 @@ void ConVar_PluginStart()
 	
 	CvarList = new ArrayList(sizeof(CvarInfo));
 	
+	ConVar_Add("mp_autoteambalance", "0");
 	ConVar_Add("mp_forcecamera", "0");
 	ConVar_Add("mp_humans_must_join_team", "any");
 	ConVar_Add("mp_teams_unbalance_limit", "0");
+	ConVar_Add("mp_scrambleteams_auto", "0");
 	ConVar_Add("mp_waitingforplayers_time", "60.0", false);
 	ConVar_Add("tf_weapon_criticals_melee", "0");
 }

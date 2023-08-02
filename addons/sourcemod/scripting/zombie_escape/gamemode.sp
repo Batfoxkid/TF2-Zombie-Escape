@@ -32,6 +32,8 @@ void Gamemode_PluginStart()
 
 void Gamemode_RoundSetup()
 {
+	Debug("Gamemode_RoundSetup");
+
 	for(int client = 1; client <= MaxClients; client++)
 	{
 		if(IsClientInGame(client))
@@ -41,13 +43,17 @@ void Gamemode_RoundSetup()
 			ClearSyncHud(client, GameHud);
 			ClearSyncHud(client, PlayerHud);
 
+			DHook_AllowSwap();
 			ChangeClientTeam(client, TFTeam_Human);
+			TF2_RespawnPlayer(client);
 		}
 	}
 }
 
 void Gamemode_RoundStart()
 {
+	Debug("Gamemode_RoundStart");
+
 	LastMann = false;
 	
 	int[] player = new int[MaxClients];
@@ -55,7 +61,7 @@ void Gamemode_RoundStart()
 
 	for(int client = 1; client <= MaxClients; client++)
 	{
-		if(IsClientInGame(client))
+		if(IsClientInGame(client) && GetClientTeam(client) > TFTeam_Spectator)
 		{
 			player[players++] = client;
 		}
@@ -65,17 +71,34 @@ void Gamemode_RoundStart()
 	{
 		SortIntegers(player, players, Sort_Random);
 
-		players = RoundFloat(players * ze_map_infect_ratio.FloatValue);
-		if(!players)
-			players = 1;
-
-		for(int i; i < players; i++)
+		int zombies = RoundFloat(players * Cvar[ZombieRatio].FloatValue);
+		if(!zombies)
+			zombies = 1;
+		
+		int i;
+		for(; i < zombies; i++)
 		{
+			if(!IsPlayerAlive(player[i]))
+				TF2_RespawnPlayer(player[i]);
+			
 			TF2_RemovePlayerDisguise(player[i]);
 			SDKCall_ChangeClientTeam(player[i], TFTeam_Zombie);
 			TF2_RegeneratePlayer(player[i]);
 			TF2_StunPlayer(player[i], 15.0, 1.0, TF_STUNFLAGS_NORMALBONK);
 			TF2_AddCondition(player[i], TFCond_UberchargedCanteen, 15.0);
+		}
+
+		for(; i < players; i++)
+		{
+			if(GetClientTeam(player[i]) != TFTeam_Human)
+			{
+				SDKCall_ChangeClientTeam(player[i], TFTeam_Human);
+				TF2_RespawnPlayer(player[i]);
+			}
+			else if(!IsPlayerAlive(player[i]))
+			{
+				TF2_RespawnPlayer(player[i]);
+			}
 		}
 	}
 
@@ -98,7 +121,7 @@ void Gamemode_RoundEnd()
 	LastMann = false;
 }
 
-void Gamemode_InventoryApplication(int client)
+void Gamemode_InventoryApplication(int client, int userid)
 {
 	if(Client(client).PendingStrip)
 	{
@@ -106,7 +129,7 @@ void Gamemode_InventoryApplication(int client)
 		TF2_RemoveAllItems(client);
 
 		int i, entity;
-		while(TF2U_GetWearable(client, entity, i))
+		while(TF2_GetWearable(client, entity, i))
 		{
 			TF2_RemoveWearable(client, entity);
 		}
@@ -123,7 +146,7 @@ void Gamemode_InventoryApplication(int client)
 		bool hasVoodoo;
 
 		int i, entity;
-		while(TF2U_GetWearable(client, entity, i))
+		while(TF2_GetWearable(client, entity, i))
 		{
 			switch(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"))
 			{
@@ -166,7 +189,7 @@ void Gamemode_InventoryApplication(int client)
 					
 					DispatchSpawn(entity);
 
-					TF2U_EquipPlayerWearable(client, entity);
+					SDKCall_EquipWearable(client, entity);
 					SetEntProp(entity, Prop_Send, "m_bValidatedAttachedEntity", true);
 					SetEntProp(entity, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 				}
@@ -179,7 +202,7 @@ void Gamemode_InventoryApplication(int client)
 	else
 	{
 		int i, entity;
-		while(TF2U_GetWearable(client, entity, i))
+		while(TF2_GetWearable(client, entity, i))
 		{
 			switch(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"))
 			{
@@ -207,29 +230,75 @@ void Gamemode_InventoryApplication(int client)
 		SetEntProp(client, Prop_Send, "m_bForcedSkin", 0);
 	}
 
+	CreateTimer(0.1, Timer_RestoreHealth, userid, TIMER_FLAG_NO_MAPCHANGE);
+
 	if(!Client(client).NoChanges && GetClientMenu(client) == MenuSource_None)
 		Weapons_ChangeMenu(client, 30);
 }
 
-void Gamemode_PlayerDeath(int client, int attacker)
+public Action Timer_RestoreHealth(Handle timer, int userid)
 {
-	if(Client(client).Human && !GameRules_GetProp("m_bInSetup"))
-	{
-		ChangeClientTeam(client, TFTeam_Zombie);
+	int client = GetClientOfUserId(userid);
+	if(client && IsPlayerAlive(client))
+		SetEntityHealth(client, SDKCall_GetMaxHealth(client));
+	
+	return Plugin_Continue;
+}
 
+void Gamemode_PlayerDeath(int client, int userid, int attacker)
+{
+	Debug("Gamemode_PlayerDeath::%N::%d", client, attacker);
+
+	if(!LastMann && Client(client).Human && !GameRules_GetProp("m_bInSetup"))
+	{
 		if(attacker > 0 && attacker <= MaxClients && Client(attacker).Zombie)
 		{
 			float pos[3], ang[3];
 			GetClientAbsOrigin(client, pos);
 			GetClientEyeAngles(client, ang);
 
-			TF2_RespawnPlayer(client);
-			TeleportEntity(client, pos, ang, NULL_VECTOR);
-			TF2_StunPlayer(client, 5.0, 1.0, TF_STUNFLAGS_NORMALBONK);
+			DataPack pack = new DataPack();
+			RequestFrame(Gamemode_PlayerDeathFrame, pack);
+			pack.WriteCell(userid);
+			
+			for(int i; i < 3; i++)
+			{
+				pack.WriteFloat(pos[i]);
+				pack.WriteFloat(ang[i]);
+			}
 		}
+
+		DHook_AllowSwap();
+		ChangeClientTeam(client, TFTeam_Zombie);
 
 		Gamemode_ClientDisconnect(client);
 	}
+}
+
+public void Gamemode_PlayerDeathFrame(DataPack pack)
+{
+	pack.Reset();
+
+	int client = GetClientOfUserId(pack.ReadCell());
+	if(client)
+	{
+		float pos[3], ang[3];
+		for(int i; i < 3; i++)
+		{
+			pos[i] = pack.ReadFloat();
+			ang[i] = pack.ReadFloat();
+		}
+
+		int entity = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
+		if(IsValidEntity(entity))
+			AcceptEntityInput(entity, "Kill");
+
+		TF2_RespawnPlayer(client);
+		TeleportEntity(client, pos, ang, NULL_VECTOR);
+		TF2_StunPlayer(client, 5.0, 1.0, TF_STUNFLAGS_NORMALBONK);
+	}
+
+	delete pack;
 }
 
 void Gamemode_PlayerTeam(int client)

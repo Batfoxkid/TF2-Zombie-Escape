@@ -122,10 +122,14 @@ void SDKCall_SetSpeed(int client)
 
 void SDKCall_ChangeClientTeam(int client, int newTeam)
 {
+	if(newTeam <= TFTeam_Spectator)
+		ThrowError("HEY!");
+	
 	int clientTeam = GetEntProp(client, Prop_Send, "m_iTeamNum");
 	if(newTeam == clientTeam)
 		return;
 	
+	DHook_AllowSwap();
 	if(SDKTeamAddPlayer && SDKTeamRemovePlayer)
 	{
 		int entity = MaxClients+1;

@@ -24,6 +24,7 @@ enum struct RawHooks
 	int Post;
 }
 
+static DynamicHook ChangeTeam;
 static DynamicHook ForceRespawn;
 static DynamicHook RoundRespawn;
 static DynamicHook ApplyOnInjured;
@@ -34,9 +35,11 @@ static int DamageTypeOffset = -1;
 static int EconViewAttribsOffset;
 static int EconItemOffset;
 
+static int ChangeTeamPreHook[MAXTF2PLAYERS];
 static int ForceRespawnPreHook[MAXTF2PLAYERS];
-static int ReturningTeam;
+static int ReturningTeam = -1;
 static int KnifeWasChanged = -1;
+static bool AllowChangeTeam;
 
 void DHook_Setup()
 {
@@ -51,6 +54,7 @@ void DHook_Setup()
 	CreateDetour(gamedata, "CTFPlayer::RegenThink", DHook_RegenThinkPre, DHook_RegenThinkPost);
 	CreateDetour(gamedata, "CTFWeaponBaseMelee::DoSwingTraceInternal", DHook_DoSwingTracePre, DHook_DoSwingTracePost);
 	
+	ChangeTeam = CreateHook(gamedata, "CBaseEntity::ChangeTeam");
 	ForceRespawn = CreateHook(gamedata, "CBasePlayer::ForceRespawn");
 	HookItemIterateAttribute = CreateHook(gamedata, "CEconItemView::IterateAttributes");
 	RoundRespawn = CreateHook(gamedata, "CTeamplayRoundBasedRules::RoundRespawn");
@@ -102,6 +106,9 @@ void DHook_HookClient(int client)
 {
 	if(ForceRespawn)
 		ForceRespawnPreHook[client] = ForceRespawn.HookEntity(Hook_Pre, client, DHook_ForceRespawnPre);
+	
+	if(ChangeTeam)
+		ChangeTeamPreHook[client] = ChangeTeam.HookEntity(Hook_Pre, client, DHook_ChangeTeamPre);
 }
 
 void DHook_EntityCreated(int entity, const char[] classname)
@@ -171,6 +178,9 @@ void DHook_UnhookClient(int client)
 {
 	if(ForceRespawn)
 		DynamicHook.RemoveHook(ForceRespawnPreHook[client]);
+	
+	if(ChangeTeam)
+		DynamicHook.RemoveHook(ChangeTeamPreHook[client]);
 }
 
 public void DHook_RoundSetup(Event event, const char[] name, bool dontBroadcast)
@@ -198,13 +208,6 @@ public MRESReturn DHook_CanPickupDroppedWeaponPre(int client, DHookReturn ret, D
 public MRESReturn DHook_DropAmmoPackPre(int client, DHookParam param)
 {
 	return Client(client).Zombie ? MRES_Supercede : MRES_Ignored;
-}
-
-public MRESReturn DHook_ForceRespawnPre(int client)
-{
-	Gamemode_ForceRespawn(client);
-	
-	return MRES_Ignored;
 }
 
 public MRESReturn DHook_RegenThinkPre(int client, DHookParam param)
@@ -276,6 +279,35 @@ public MRESReturn DHook_DoSwingTracePost(int entity, DHookReturn ret, DHookParam
 
 		ReturningTeam = -1;
 	}
+	return MRES_Ignored;
+}
+
+void DHook_AllowSwap()
+{
+	AllowChangeTeam = false;
+}
+
+public MRESReturn DHook_ChangeTeamPre(int client, DHookParam param)
+{
+	//if(AllowChangeTeam)
+	//{
+	//	AllowChangeTeam = false;
+	//	return MRES_Ignored;
+	//}
+
+	int team = param.Get(1);
+	Debug("Moved %d team on %N", team, client);
+
+	//if(team <= TFTeam_Spectator)	// Always allow spectator so AFK plugins can work
+		return MRES_Ignored;
+	
+	//return MRES_Supercede;
+}
+
+public MRESReturn DHook_ForceRespawnPre(int client)
+{
+	Gamemode_ForceRespawn(client);
+	
 	return MRES_Ignored;
 }
 

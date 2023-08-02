@@ -87,6 +87,8 @@ public Action Command_JoinTeam(int client, const char[] command, int args)
 
 static Action SwapTeam(int client, int wantTeam)
 {
+	Debug("SwapTeam::%N::%d", client, wantTeam);
+	
 	int newTeam = wantTeam;
 
 	// Prevent going to spectate with cvar disabled
@@ -118,6 +120,8 @@ static Action SwapTeam(int client, int wantTeam)
 	}
 	
 	ForcePlayerSuicide(client);
+
+	DHook_AllowSwap();
 	ChangeClientTeam(client, newTeam);
 	if(newTeam > TFTeam_Spectator)
 		ShowVGUIPanel(client, newTeam == TFTeam_Red ? "class_red" : "class_blue");

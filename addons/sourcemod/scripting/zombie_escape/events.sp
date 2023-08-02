@@ -53,20 +53,21 @@ public Action Events_InventoryApplication(Event event, const char[] name, bool d
 	int client = GetClientOfUserId(userid);
 	if(client)
 	{
-		Gamemode_InventoryApplication(client);
+		Gamemode_InventoryApplication(client, userid);
 	}
 	return Plugin_Continue;
 }
 
 public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
-	int victim = GetClientOfUserId(event.GetInt("userid"));
+	int userid = event.GetInt("userid");
+	int victim = GetClientOfUserId(userid);
 	if(victim)
 	{
 		if(!(event.GetInt("death_flags") & TF_DEATHFLAG_DEADRINGER))
 		{
 			Client(victim).ResetByDeath();
-			Gamemode_PlayerDeath(victim, GetClientOfUserId(event.GetInt("attacker")));
+			Gamemode_PlayerDeath(victim, userid, GetClientOfUserId(event.GetInt("attacker")));
 		}
 	}
 }

@@ -92,7 +92,7 @@ public Action Weapons_DebugRefresh(int client, int args)
 	TF2_RemoveAllItems(client);
 	
 	int entity, i;
-	while(TF2U_GetWearable(client, entity, i))
+	while(TF2_GetWearable(client, entity, i))
 	{
 		TF2_RemoveWearable(client, entity);
 	}
@@ -123,7 +123,10 @@ void Weapons_ConfigsExecuted()
 	delete WeaponKv;
 
 	WeaponKv = new KeyValues("Weapons");
-	WeaponKv.ImportFromFile(FILE_WEAPONS);
+
+	char buffer[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, buffer, sizeof(buffer), FILE_WEAPONS);
+	WeaponKv.ImportFromFile(buffer);
 }
 
 void Weapons_ChangeMenu(int client, int time = MENU_TIME_FOREVER)
@@ -506,8 +509,8 @@ static bool FindWeaponSection(int entity, bool zombie)
 					
 					if(StringToInt(buffer2) == index)
 						return true;
-					
-				} while(found);
+				}
+				while(found);
 			}
 			while(WeaponKv.GotoNextKey());
 

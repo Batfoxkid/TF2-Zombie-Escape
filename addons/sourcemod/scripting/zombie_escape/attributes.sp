@@ -311,7 +311,7 @@ float Attributes_FindOnPlayer(int client, int index, bool multi = false, float d
 	int i;
 	int entity;
 	float value;
-	while(TF2U_GetWearable(client, entity, i))
+	while(TF2_GetWearable(client, entity, i))
 	{
 		if(Attributes_GetByDefIndex(entity, index, value))
 		{
@@ -366,7 +366,7 @@ float Attributes_FindOnWeapon(int client, int entity, int index, bool multi = fa
 	int i;
 	int wear;
 	float value;
-	while(TF2U_GetWearable(client, wear, i))
+	while(TF2_GetWearable(client, wear, i))
 	{
 		if(Attributes_GetByDefIndex(wear, index, value))
 		{

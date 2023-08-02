@@ -165,6 +165,38 @@ void TF2_RemoveAllItems(int client)
 	}
 }
 
+bool TF2_GetWearable(int client, int &entity, int &index)
+{
+	if(index >= -1 && index <= MaxClients)
+		index = MaxClients + 1;
+	
+	if(index > -2)
+	{
+		while((index = FindEntityByClassname(index, "tf_wear*")) != -1)
+		{
+			if(GetEntPropEnt(index, Prop_Send, "m_hOwnerEntity") == client)
+			{
+				entity = index;
+				return true;
+			}
+		}
+		
+		index = -(MaxClients + 1);
+	}
+	
+	entity = -index;
+	while((entity = FindEntityByClassname(entity, "tf_powerup_bottle")) != -1)
+	{
+		if(GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity") == client)
+		{
+			index = -entity;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool IsInvuln(int client)
 {
 	return (TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||

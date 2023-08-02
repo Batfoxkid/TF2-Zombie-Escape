@@ -31,8 +31,8 @@ enum CritType
 #endif
 
 static bool OTDLoaded;
-
 static int CurrentEntities;
+static float AdjustDamagePos[MAXTF2PLAYERS];
 
 void SDKHook_PluginStart()
 {
@@ -121,6 +121,8 @@ public Action SDKHook_TakeDamage(int victim, int &attacker, int &inflictor, floa
 
 public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom, CritType &critType)
 {
+	AdjustDamagePos[victim] = 0.0;
+	
 	if(Client(victim).Zombie)
 	{
 		if(!attacker)
@@ -140,6 +142,34 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 			if(IsInvuln(victim))
 				return Plugin_Continue;
 			
+			if(Cvar[ZombieUpward].FloatValue)
+			{
+				if(inflictor > 0 && inflictor <= MaxClients)
+				{
+					// TODO: There is no good way to adjust knockback from here
+					// Possible solution is to apply extra Z force in post
+					// Too little damage goes no where and over that is too much, nothing in between
+					inflictor = victim;
+
+					float pos1[3];
+					GetClientAbsOrigin(victim, pos1);
+					AdjustDamagePos[victim] = Cvar[ZombieUpward].FloatValue;
+
+					/*float pos1[3], pos2[3];
+					GetClientAbsOrigin(victim, pos1);
+					GetClientAbsOrigin(inflictor, pos2);
+
+					AdjustDamagePos[victim] = (pos2[2] - pos1[2]) + (Cvar[ZombieUpward].FloatValue * GetVectorDistance(pos1, pos2));
+					Debug("Knockback: %f", AdjustDamagePos[victim]);*/
+					
+					pos1[2] += AdjustDamagePos[victim];
+					TeleportEntity(victim, pos1);
+				}
+				//SetEntityFlags(victim, GetEntityFlags(victim) & ~FL_ONGROUND);
+				//SetEntPropEnt(victim, Prop_Send, "m_hGroundEntity", -1);
+				
+			}
+
 			switch(damagecustom)
 			{
 				case TF_CUSTOM_BACKSTAB:
@@ -245,6 +275,14 @@ public void SDKHook_TakeDamagePost(int victim, int attacker, int inflictor, floa
 {
 	if(Client(victim).Zombie)
 	{
+		if(AdjustDamagePos[victim])
+		{
+			float pos[3];
+			GetClientAbsOrigin(victim, pos);
+			pos[2] -= AdjustDamagePos[victim];
+			TeleportEntity(victim, pos);
+		}
+
 		if(victim != attacker && attacker > 0 && attacker <= MaxClients && !IsInvuln(victim))
 			Attributes_OnHitZombie(attacker, victim, inflictor, damage, weapon, damagecustom);
 	}

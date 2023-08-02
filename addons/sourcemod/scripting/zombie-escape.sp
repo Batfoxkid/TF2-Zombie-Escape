@@ -54,6 +54,7 @@ enum
 	Debugging,
 	
 	ZombieRatio,
+	ZombieUpward,
 	
 	AllowSpectators,
 	MovementFreeze,
@@ -82,7 +83,6 @@ ConVar Cvar[Cvar_MAX];
 #include "zombie_escape/sdkcalls.sp"
 #include "zombie_escape/sdkhooks.sp"
 #include "zombie_escape/steamworks.sp"
-#include "zombie_escape/tf2utils.sp"
 #include "zombie_escape/weapons.sp"
 
 public Plugin myinfo =
@@ -96,7 +96,6 @@ public Plugin myinfo =
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-	TF2U_PluginLoad();
 	TFED_PluginLoad();
 	Weapons_PluginLoad();
 	return APLRes_Success;
@@ -121,7 +120,6 @@ public void OnPluginStart()
 	SDKCall_Setup();
 	SDKHook_PluginStart();
 	SteamWorks_PluginStart();
-	TF2U_PluginStart();
 	TFED_PluginStart();
 	Weapons_PluginStart();
 	
@@ -155,7 +153,6 @@ public void OnLibraryAdded(const char[] name)
 {
 	SDKHook_LibraryAdded(name);
 	SteamWorks_LibraryAdded(name);
-	TF2U_LibraryAdded(name);
 	TFED_LibraryAdded(name);
 	Weapons_LibraryAdded(name);
 }
@@ -164,7 +161,6 @@ public void OnLibraryRemoved(const char[] name)
 {
 	SDKHook_LibraryRemoved(name);
 	SteamWorks_LibraryRemoved(name);
-	TF2U_LibraryRemoved(name);
 	TFED_LibraryRemoved(name);
 	Weapons_LibraryRemoved(name);
 }
