@@ -14,7 +14,7 @@
  * 
 **/
 
-#tryinclude <tf_econ_data> 
+#tryinclude <tf_econ_data>
 
 #pragma semicolon 1
 #pragma newdecls required

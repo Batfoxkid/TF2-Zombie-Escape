@@ -299,7 +299,7 @@ public MRESReturn DHook_ChangeTeamPre(int client, DHookParam param)
 	Debug("Moved %d team on %N", team, client);
 
 	//if(team <= TFTeam_Spectator)	// Always allow spectator so AFK plugins can work
-		return MRES_Ignored;
+	return MRES_Ignored;
 	
 	//return MRES_Supercede;
 }

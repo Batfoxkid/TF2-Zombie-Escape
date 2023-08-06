@@ -34,7 +34,7 @@ void ConVar_PluginStart()
 	Cvar[Debugging] = CreateConVar("ze_debug", "1", "If to display debug outputs", FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	
 	Cvar[ZombieRatio] = CreateConVar("ze_map_infect_ratio", "0.15", "Zombies to total players at the start of a round", _, true, 0.0, true, 1.0);
-	Cvar[ZombieUpward] = CreateConVar("ze_zombie_upward_knockback", "0.0", "Amount of extra upward knockback");
+	Cvar[ZombieUpward] = CreateConVar("ze_zombie_upward_knockback", "260.0", "Amount of extra upward knockback");
 	
 	AutoExecConfig(false, "ZombieEscape");
 	

@@ -22,6 +22,7 @@ static bool NoChanges[MAXTF2PLAYERS];
 static int MusicType[MAXTF2PLAYERS];
 static int SoundLevel[MAXTF2PLAYERS];
 static int Damage[MAXTF2PLAYERS][6];
+static float Cripple[MAXTF2PLAYERS];
 
 methodmap Client
 {
@@ -116,8 +117,21 @@ methodmap Client
 		Damage[view_as<int>(this)][slot + 1] = damage;
 	}
 	
+	property float Cripple
+	{
+		public get()
+		{
+			return Cripple[view_as<int>(this)];
+		}
+		public set(float amount)
+		{
+			Cripple[view_as<int>(this)] = amount;
+		}
+	}
+	
 	public void ResetByDeath()
 	{
+		this.Cripple = 0.0;
 	}
 	
 	public void ResetByRound()

@@ -20,6 +20,7 @@
 void Events_PluginStart()
 {
 	HookEvent("teamplay_setup_finished", Events_RoundStart, EventHookMode_Pre);
+	HookEvent("player_hurt", Events_PlayerHurt, EventHookMode_Pre);
 	HookEvent("player_death", Events_PlayerDeath, EventHookMode_Post);
 	HookEvent("post_inventory_application", Events_InventoryApplication, EventHookMode_Pre);
 	HookEvent("teamplay_broadcast_audio", Events_BroadcastAudio, EventHookMode_Pre);
@@ -54,6 +55,19 @@ public Action Events_InventoryApplication(Event event, const char[] name, bool d
 	if(client)
 	{
 		Gamemode_InventoryApplication(client, userid);
+	}
+	return Plugin_Continue;
+}
+
+public Action Events_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
+{
+	int userid = event.GetInt("userid");
+	int victim = GetClientOfUserId(userid);
+	if(victim && Client(victim).Zombie)
+	{
+		SetEntityHealth(victim, 9999);
+		event.SetInt("health", 9999);
+		return Plugin_Changed;
 	}
 	return Plugin_Continue;
 }

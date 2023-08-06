@@ -73,6 +73,7 @@ void SDKHook_HookClient(int client)
 		SDKHook(client, SDKHook_OnTakeDamage, SDKHook_TakeDamage);
 	
 	SDKHook(client, SDKHook_OnTakeDamagePost, SDKHook_TakeDamagePost);
+	SDKHook(client, SDKHook_GetMaxHealth, SDKHook_MaxHealth);
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -149,11 +150,11 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 					// TODO: There is no good way to adjust knockback from here
 					// Possible solution is to apply extra Z force in post
 					// Too little damage goes no where and over that is too much, nothing in between
-					inflictor = victim;
+					//inflictor = victim;
 
-					float pos1[3];
-					GetClientAbsOrigin(victim, pos1);
-					AdjustDamagePos[victim] = Cvar[ZombieUpward].FloatValue;
+					//float pos1[3];
+					//GetClientAbsOrigin(victim, pos1);
+					//AdjustDamagePos[victim] = Cvar[ZombieUpward].FloatValue;
 
 					/*float pos1[3], pos2[3];
 					GetClientAbsOrigin(victim, pos1);
@@ -162,8 +163,8 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 					AdjustDamagePos[victim] = (pos2[2] - pos1[2]) + (Cvar[ZombieUpward].FloatValue * GetVectorDistance(pos1, pos2));
 					Debug("Knockback: %f", AdjustDamagePos[victim]);*/
 					
-					pos1[2] += AdjustDamagePos[victim];
-					TeleportEntity(victim, pos1);
+					//pos1[2] += AdjustDamagePos[victim];
+					//TeleportEntity(victim, pos1);
 				}
 				//SetEntityFlags(victim, GetEntityFlags(victim) & ~FL_ONGROUND);
 				//SetEntPropEnt(victim, Prop_Send, "m_hGroundEntity", -1);
@@ -174,19 +175,12 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 			{
 				case TF_CUSTOM_BACKSTAB:
 				{
-					damage *= 0.4;
-					damagetype |= DMG_CRIT;
-					critType = CritType_Crit;
-
-					return Plugin_Changed;
+					Attributes_OnBackstabZombie(victim, attacker, damage, damagetype, weapon);
 				}
 				case TF_CUSTOM_TELEFRAG:
 				{
 					damage = GetClientHealth(victim) * 0.65;
 					damagetype |= DMG_CRIT;
-					critType = CritType_Crit;
-					
-					return Plugin_Changed;
 				}
 			}
 			
@@ -283,9 +277,35 @@ public void SDKHook_TakeDamagePost(int victim, int attacker, int inflictor, floa
 			TeleportEntity(victim, pos);
 		}
 
+		if(!(damagetype & DMG_PREVENT_PHYSICS_FORCE) && Cvar[ZombieUpward].FloatValue)
+		{
+			if(GetEntityFlags(victim) & FL_ONGROUND)
+			{
+				float vel[3];
+				GetEntPropVector(victim, Prop_Data, "m_vecVelocity", vel);
+				if(vel[2] < Cvar[ZombieUpward].FloatValue)
+				{
+					vel[2] = Cvar[ZombieUpward].FloatValue;
+					TeleportEntity(victim, _, _, vel);
+				}
+			}
+		}
+
 		if(victim != attacker && attacker > 0 && attacker <= MaxClients && !IsInvuln(victim))
 			Attributes_OnHitZombie(attacker, victim, inflictor, damage, weapon, damagecustom);
 	}
+
+	Gamemode_TakeDamage(victim, damage, damagetype);
+}
+
+public Action SDKHook_MaxHealth(int entity, int &maxhealth)
+{
+	if(!Client(entity).Zombie)
+		return Plugin_Continue;
+	
+	maxhealth = 0;
+	SetEntityHealth(entity, 0);
+	return Plugin_Changed;
 }
 
 public Action SDKHook_PickupTouch(int entity, int client)

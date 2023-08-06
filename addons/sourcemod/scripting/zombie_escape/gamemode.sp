@@ -24,6 +24,8 @@ static Handle GameHud;
 static Handle PlayerHud;
 static bool LastMann;
 
+static Handle CrippleTimer[MAXTF2PLAYERS];
+
 void Gamemode_PluginStart()
 {
 	GameHud = CreateHudSynchronizer();
@@ -353,4 +355,58 @@ bool Gamemode_ForceRespawn(int client)
 bool Gamemode_InLastman()
 {
 	return LastMann;
+}
+
+void Gamemode_TakeDamage(int victim, float damage, int damagetype)
+{
+	if(damagetype & DMG_CRIT)
+		damage *= 3.0;
+	
+	if(GetClientTeam(victim) == TFTeam_Human)
+	{
+		Client(victim).Cripple += damage * 4.0;
+	}
+	else
+	{
+		Client(victim).Cripple += damage;
+	}
+
+	if(!CrippleTimer[victim])
+		CrippleTimer[victim] = CreateTimer(0.1, Timer_CrippleUpdate, victim, TIMER_REPEAT);
+}
+
+public Action Timer_CrippleUpdate(Handle timer, int client)
+{
+	if(Client(client).Cripple <= 0.0)
+	{
+		CrippleTimer[client] = null;
+		return Plugin_Stop;
+	}
+
+	if(Client(client).Cripple > 800.0)
+	{
+		Client(client).Cripple = 790.0;
+	}
+	else if(!TF2_IsPlayerInCondition(client, TFCond_MarkedForDeath))
+	{
+		Client(client).Cripple -= 10.0;
+		if(Client(client).Cripple < 0.0)
+			Client(client).Cripple = 0.0;
+	}
+	
+	UpdateCrippleSpeed(client);
+	return Plugin_Continue;
+}
+
+static void UpdateCrippleSpeed(int client)
+{
+	if(Client(client).Cripple > 0.0)
+	{
+		float slowdown = Client(client).Cripple / 500.0;
+		if(slowdown > 1.0)
+			slowdown = 1.0;
+		
+		if(slowdown > 0.4)
+			TF2_StunPlayer(client, 0.15, slowdown, TF_STUNFLAG_SLOWDOWN);
+	}
 }

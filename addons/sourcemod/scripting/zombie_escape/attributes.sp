@@ -17,6 +17,88 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+void Attributes_OnBackstabZombie(int victim, int attacker, float &damage, int &damagetype, int weapon)
+{
+	if(Attributes_FindOnWeapon(attacker, weapon, 217))	// sanguisuge
+	{
+		int maxoverheal = SDKCall_GetMaxHealth(attacker) * 3;
+		int health = GetClientHealth(attacker);
+		if(health < maxoverheal)
+		{
+			SetEntityHealth(attacker, maxoverheal);
+			ApplySelfHealEvent(attacker, maxoverheal - health);
+			
+			if(TF2_IsPlayerInCondition(attacker, TFCond_OnFire))
+				TF2_RemoveCondition(attacker, TFCond_OnFire);
+			
+			if(TF2_IsPlayerInCondition(attacker, TFCond_Bleeding))
+				TF2_RemoveCondition(attacker, TFCond_Bleeding);
+			
+			if(TF2_IsPlayerInCondition(attacker, TFCond_Plague))
+				TF2_RemoveCondition(attacker, TFCond_Plague);
+		}
+	}
+
+	damage = 500.0;
+	
+	float value = Attributes_FindOnPlayer(attacker, 296);	// sapper kills collect crits
+	if(value)
+		SetEntProp(attacker, Prop_Send, "m_iRevengeCrits", GetEntProp(attacker, Prop_Send, "m_iRevengeCrits") + RoundFloat(value));
+	
+	value = Attributes_FindOnWeapon(attacker, weapon, 399, true, 1.0);	// armor piercing
+	if(value != 1.0)
+		damage *= value;
+	
+	if(Attributes_FindOnWeapon(attacker, weapon, 154))	// disguise on backstab
+	{
+		DataPack pack = new DataPack();
+		RequestFrame(Attributes_RedisguiseFrame, pack);
+		pack.WriteCell(GetClientUserId(attacker));
+
+		if(TF2_IsPlayerInCondition(attacker, TFCond_Disguised))
+		{
+			pack.WriteCell(GetEntProp(attacker, Prop_Send, "m_nDisguiseTeam"));
+			pack.WriteCell(GetEntProp(attacker, Prop_Send, "m_nDisguiseClass"));
+			pack.WriteCell(GetEntPropEnt(attacker, Prop_Send, "m_hDisguiseTarget"));
+			pack.WriteCell(GetEntProp(attacker, Prop_Send, "m_iDisguiseHealth"));
+		}
+		else
+		{
+			pack.WriteCell(GetClientTeam(victim));
+			pack.WriteCell(TF2_GetPlayerClass(victim));
+			pack.WriteCell(victim);
+			pack.WriteCell(GetClientHealth(victim));
+		}
+	}
+	
+	if(Attributes_FindOnWeapon(attacker, weapon, 156))	// silent killer
+	{
+		damagetype |= DMG_PREVENT_PHYSICS_FORCE;
+		TF2_AddCondition(victim, TFCond_HalloweenKartNoTurn, damage / 75.0, attacker);
+	}
+	else
+	{
+		TF2_StunPlayer(victim, damage / 50.0, 1.0, TF_STUNFLAGS_BIGBONK, attacker);
+	}
+}
+
+public void Attributes_RedisguiseFrame(DataPack pack)
+{
+	pack.Reset();
+
+	int client = GetClientOfUserId(pack.ReadCell());
+	if(client)
+	{
+		TF2_AddCondition(client, TFCond_Disguised, -1.0);
+		SetEntProp(client, Prop_Send, "m_nDisguiseTeam", pack.ReadCell());
+		SetEntProp(client, Prop_Send, "m_nDisguiseClass", pack.ReadCell());
+		SetEntPropEnt(client, Prop_Send, "m_hDisguiseTarget", pack.ReadCell());
+		SetEntProp(client, Prop_Send, "m_iDisguiseHealth", pack.ReadCell());
+	}
+
+	delete pack;
+}
+
 void Attributes_OnHitZombiePre(float &damage, int &damagetype, int weapon, int &critType)
 {
 	if(weapon != -1 && HasEntProp(weapon, Prop_Send, "m_AttributeList"))
