@@ -19,44 +19,34 @@
 
 void Events_PluginStart()
 {
-	HookEvent("teamplay_setup_finished", Events_RoundStart, EventHookMode_Pre);
-	HookEvent("player_hurt", Events_PlayerHurt, EventHookMode_Pre);
 	HookEvent("player_death", Events_PlayerDeath, EventHookMode_Post);
+	HookEvent("player_healed", Events_PlayerHealed, EventHookMode_Post);
+	HookEvent("player_hurt", Events_PlayerHurt, EventHookMode_Pre);
 	HookEvent("post_inventory_application", Events_InventoryApplication, EventHookMode_Pre);
 	HookEvent("teamplay_broadcast_audio", Events_BroadcastAudio, EventHookMode_Pre);
 	HookEvent("teamplay_round_win", Events_RoundEnd, EventHookMode_Post);
 	HookEvent("teamplay_setup_finished", Events_RoundStart, EventHookMode_Post);
 }
 
-public void Events_RoundStart(Event event, const char[] name, bool dontBroadcast)
-{
-	Gamemode_RoundStart();
-}
-
-public void Events_RoundEnd(Event event, const char[] name, bool dontBroadcast)
-{
-	Gamemode_RoundEnd();
-}
-
-public Action Events_BroadcastAudio(Event event, const char[] name, bool dontBroadcast)
-{
-	char sound[64];
-	event.GetString("sound", sound, sizeof(sound));
-	if(!StrContains(sound, "Game.Your", false) || StrEqual(sound, "Game.Stalemate", false))
-		return Plugin_Handled;
-	
-	return Plugin_Continue;
-}
-
-public Action Events_InventoryApplication(Event event, const char[] name, bool dontBroadcast)
+public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
-	int client = GetClientOfUserId(userid);
-	if(client)
+	int victim = GetClientOfUserId(userid);
+	if(victim)
 	{
-		Gamemode_InventoryApplication(client, userid);
+		if(!(event.GetInt("death_flags") & TF_DEATHFLAG_DEADRINGER))
+		{
+			Client(victim).ResetByDeath();
+			Gamemode_PlayerDeath(victim, userid, GetClientOfUserId(event.GetInt("attacker")));
+		}
 	}
-	return Plugin_Continue;
+}
+
+public void Events_PlayerHealed(Event event, const char[] name, bool dontBroadcast)
+{
+	int patient = event.GetInt("patient");
+	if(patient)
+		Gamemode_TakeDamage(patient, float(-event.GetInt("amount")), DMG_CRIT);
 }
 
 public Action Events_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
@@ -72,16 +62,33 @@ public Action Events_PlayerHurt(Event event, const char[] name, bool dontBroadca
 	return Plugin_Continue;
 }
 
-public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
+public Action Events_InventoryApplication(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
-	int victim = GetClientOfUserId(userid);
-	if(victim)
+	int client = GetClientOfUserId(userid);
+	if(client)
 	{
-		if(!(event.GetInt("death_flags") & TF_DEATHFLAG_DEADRINGER))
-		{
-			Client(victim).ResetByDeath();
-			Gamemode_PlayerDeath(victim, userid, GetClientOfUserId(event.GetInt("attacker")));
-		}
+		Gamemode_InventoryApplication(client, userid);
 	}
+	return Plugin_Continue;
+}
+
+public Action Events_BroadcastAudio(Event event, const char[] name, bool dontBroadcast)
+{
+	char sound[64];
+	event.GetString("sound", sound, sizeof(sound));
+	if(!StrContains(sound, "Game.Your", false) || StrEqual(sound, "Game.Stalemate", false))
+		return Plugin_Handled;
+	
+	return Plugin_Continue;
+}
+
+public void Events_RoundEnd(Event event, const char[] name, bool dontBroadcast)
+{
+	Gamemode_RoundEnd();
+}
+
+public void Events_RoundStart(Event event, const char[] name, bool dontBroadcast)
+{
+	Gamemode_RoundStart();
 }

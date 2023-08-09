@@ -192,7 +192,7 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 		}
 		else
 		{
-			damage *= 10.0;
+			damage *= 500.0;
 			
 			if(critType == CritType_None && (damagetype & DMG_CRIT))
 				critType = CritType_Crit;

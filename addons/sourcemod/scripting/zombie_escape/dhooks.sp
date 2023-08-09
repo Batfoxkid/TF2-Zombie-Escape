@@ -306,7 +306,8 @@ public MRESReturn DHook_ChangeTeamPre(int client, DHookParam param)
 
 public MRESReturn DHook_ForceRespawnPre(int client)
 {
-	Gamemode_ForceRespawn(client);
+	if(Gamemode_ForceRespawn(client))
+		return MRES_Supercede;
 	
 	return MRES_Ignored;
 }

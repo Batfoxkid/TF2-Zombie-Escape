@@ -19,11 +19,97 @@
 
 #define NO_MUSIC_TIME	-999999
 
+#define DRUM_FILE	"#szf/music/zombat/horde/drums%s.mp3"
+static const char DrumSuffix[][] =
+{
+	"01b",
+	"01c",
+	"01d",
+	"02c",
+	"02d",
+	"03a",
+	"03b",
+	"3c",
+	"3d",
+	"3f",
+	"5b",
+	"5c",
+	"5d",
+	"5e",
+	"7a",
+	"7b",
+	"7c",
+	"08a",
+	"08b",
+	"08e",
+	"08f",
+	"8b",
+	"8c",
+	"09c",
+	"09d",
+	"10b",
+	"10c",
+	"11c",
+	"11d"
+};
+
+#define VIOLIN_FILE	"#szf/music/zombat/slayer/fiddle/violin_slayer_%s.mp3"
+static const char ViolinSuffix[][] =
+{
+	"01_01a",
+	"01_01b",
+	"01_01c",
+	"01_01d",
+	"02_01a",
+	"02_01b",
+	"02_01c",
+	"02_01d",
+	"02_01e"
+};
+
+#define BANJO_FILE	"#szf/music/zombat/danger/banjo/banjo_%s.mp3"
+static const char BanjoSuffix[][] =
+{
+	"01a_01",
+	"01a_02",
+	"01a_03",
+	"01a_04",
+	"01a_05",
+	"01a_06",
+	"01b_01",
+	"01b_03",
+	"01b_04",
+	"02_01",
+	"02_02",
+	"02_03",
+	"02_04",
+	"02_05",
+	"02_06",
+	"02_07",
+	"02_08",
+	"02_09",
+	"02_10",
+	"02_13",
+	"02_14",
+	"02_15"
+};
+
+#define TRUMPET_FILE	"#szf/music/zombat/danger/trumpet/trumpet_danger_02_%02d.mp3"
+
+enum
+{
+	Theme_ZombieRiot = 1,
+	Theme_ZombieFortress
+}
+
 static int MusicLevelZombieRiot;
 static int MusicLevelZombieFortress;
 
+static int RoundRNG;
+static bool NewFullRound = true;
 static char CurrentTheme[MAXTF2PLAYERS][PLATFORM_MAX_PATH];
 static int NextThemeAt[MAXTF2PLAYERS];
+static int NextRabiesAt[MAXTF2PLAYERS];
 
 void Music_PluginStart()
 {
@@ -51,70 +137,71 @@ void Music_MapStart()
 	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/8.mp3");
 	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/9.mp3");
 	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/10.mp3");
-	PrecacheSoundCustom("#zombiesurvival/lasthuman.mp3");
-	PrecacheSoundCustom("#zombiesurvival/music_lose.mp3");
-	MusicLevelZombieRiot = PrecacheSoundCustom("#zombiesurvival/music_win.mp3");
+	MusicLevelZombieRiot = PrecacheSoundCustom("#zombiesurvival/lasthuman.mp3");
 	
-	MusicLevelZombieFortress = 99999;
+	
+	char buffer[PLATFORM_MAX_PATH];
+	for(int i; i < sizeof(DrumSuffix); i++)
+	{
+		FormatEx(buffer, sizeof(buffer), DRUM_FILE, DrumSuffix[i]);
+		PrecacheSoundCustom(buffer);
+	}
+	for(int i; i < sizeof(ViolinSuffix); i++)
+	{
+		FormatEx(buffer, sizeof(buffer), VIOLIN_FILE, ViolinSuffix[i]);
+		PrecacheSoundCustom(buffer);
+	}
+	for(int i; i < sizeof(BanjoSuffix); i++)
+	{
+		FormatEx(buffer, sizeof(buffer), BANJO_FILE, BanjoSuffix[i]);
+		PrecacheSoundCustom(buffer);
+	}
+	for(int i = 1; i < 16; i++)
+	{
+		FormatEx(buffer, sizeof(buffer), TRUMPET_FILE, i);
+		PrecacheSoundCustom(buffer);
+	}
+
+	PrecacheSoundCustom("#szf/music/zombat/slayer/lectric/slayer_01a.mp3");
+	PrecacheSoundCustom("#szf/music/zombat/snare_horde_01_01a.mp3");
+	PrecacheSoundCustom("#szf/music/zombat/snare_horde_01_01b.mp3");
+	PrecacheSoundCustom("#szf/music/contagion/l4d2_rabies_01.mp3");
+	PrecacheSoundCustom("#szf/music/contagion/l4d2_rabies_02.mp3");
+	PrecacheSoundCustom("#szf/music/contagion/l4d2_rabies_03.mp3");
+	PrecacheSoundCustom("#szf/music/contagion/l4d2_rabies_04.mp3");
+	PrecacheSoundCustom("#szf/music/stmusic/deadeasy.mp3");
+	PrecacheSoundCustom("#szf/music/stmusic/deadlightdistrict.mp3");
+	PrecacheSoundCustom("#szf/music/stmusic/deathisacarousel.mp3");
+	PrecacheSoundCustom("#szf/music/stmusic/diedonthebayou.mp3");
+	PrecacheSoundCustom("#szf/music/stmusic/osweetdeath.mp3");
+	PrecacheSoundCustom("#szf/music/stmusic/southofhuman.mp3");
+	PrecacheSoundCustom("#szf/music/stmusic/thesacrifice.mp3");
+	PrecacheSoundCustom("#szf/music/cpmusic/bloodharvestor.mp3");
+	PrecacheSoundCustom("#szf/music/cpmusic/deadairtime.mp3");
+	PrecacheSoundCustom("#szf/music/cpmusic/deathtollcollector.mp3");
+	PrecacheSoundCustom("#szf/music/cpmusic/nomercyforyou.mp3");
+	PrecacheSoundCustom("#szf/music/cpmusic/prayfordeath.mp3");
+	PrecacheSoundCustom("#szf/music/terror/theend.mp3");
+	PrecacheSoundCustom("#szf/music/the_end/skinonourteeth.mp3");
+	PrecacheSoundCustom("#szf/music/undeath/death.mp3");
+	MusicLevelZombieFortress = PrecacheSoundCustom("#szf/music/safe/themonsterswithout.mp3");
+
+	NewFullRound = true;
 }
 
 void Music_RoundStart()
 {
+	if(NewFullRound)
+		RoundRNG = GetURandomInt();
 	
+	Music_ForceNextSong(true);
 }
 
-void Music_RoundEnd(int winner)
+// Note: Must be below Gamemode_RoundEnd()
+void Music_RoundEnd(int team, bool full_round)
 {
-	for(int i; i < amount; i++)
-	{
-		if(CurrentTheme[clients[i]][0])
-		{
-			Music_PlaySongToClient(clients[i]);
-			
-			int boss;
-			SoundEnum sound;
-			sound.Default();
-			if(Client(clients[i]).MusicShuffle)
-			{
-				ConfigMap cfg = Bosses_GetConfig(CurrentSource[clients[i]]);
-				if(cfg)
-				{
-					if(GetClientTeam(clients[i]) == winner)
-					{
-						Bosses_GetRandomSoundCfg(cfg, "sound_outtromusic_win", sound);
-					}
-					else if(winner || !Bosses_GetRandomSoundCfg(cfg, "sound_outtromusic_stalemate", sound))
-					{
-						Bosses_GetRandomSoundCfg(cfg, "sound_outtromusic_lose", sound);
-					}
-					
-					if(!sound.Sound[0])
-						Bosses_GetRandomSoundCfg(cfg, "sound_outtromusic", sound);
-				}
-			}
-			else
-			{
-				boss = GetClientOfUserId(CurrentSource[clients[i]]);
-				if(boss)
-				{
-					if(GetClientTeam(boss) == winner)
-					{
-						Bosses_GetRandomSound(boss, "sound_outtromusic_win", sound);
-					}
-					else if(winner || !Bosses_GetRandomSound(boss, "sound_outtromusic_stalemate", sound))
-					{
-						Bosses_GetRandomSound(boss, "sound_outtromusic_lose", sound);
-					}
-					
-					if(!sound.Sound[0])
-						Bosses_GetRandomSound(boss, "sound_outtromusic", sound);
-				}
-			}
-			
-			if(sound.Sound[0])
-				Music_PlaySongToClient(clients[i], sound.Sound, boss, sound.Name, sound.Artist, sound.Time, sound.Volume, sound.Pitch);
-		}
-	}
+	NewFullRound = full_round;
+	Music_ForceNextSong(team == TFTeam_Human ? 2 : 3);
 }
 
 void Music_PlayerRunCmd(int client)
@@ -123,577 +210,395 @@ void Music_PlayerRunCmd(int client)
 		Music_PlayNextSong(client);
 }
 
-void Music_PlayNextSong(int client = 0)
+void Music_ForceNextSong(int type = 0)
 {
-	if(client)
-	{
-		switch(Client(client).MusicType)
-		{
-			case 1:	// Zombie Riot
-			{
-
-			}
-		}
-
-		NextThemeAt[client] = FAR_FUTURE;
-		
-		if(Client(client).MusicShuffle)
-		{
-			int length = Playlist.Length;
-			if(length > 0)
-			{
-				MusicEnum music;
-				Playlist.GetArray(GetRandomInt(0, length - 1), music);
-				
-				ConfigMap cfg = Bosses_GetConfig(music.Special);
-				if(cfg)
-				{
-					SoundEnum sound;
-					sound.Default();
-					if(Bosses_GetSpecificSoundCfg(cfg, music.Section, music.Key, sizeof(music.Key), sound))
-					{
-						Music_PlaySongToClient(client, sound.Sound, music.Special, sound.Name, sound.Artist, sound.Time, sound.Volume, sound.Pitch);
-						return;
-					}
-				}
-			}
-		}
-		else if(!Client(client).IsBoss || !ForwardOld_OnMusicPerBoss(client) || !Bosses_PlaySoundToClient(client, client, "sound_bgm"))
-		{
-			for(int i; i < MaxClients; i++)
-			{
-				int boss = FindClientOfBossIndex(i);
-				if(boss != -1 && Bosses_PlaySoundToClient(boss, client, "sound_bgm"))
-					return;
-			}
-		}
-		else
-		{
-			return;
-		}
-		
-		Music_PlaySongToClient(client);
-	}
-	else
-	{
-		for(int i = 1; i <= MaxClients; i++)
-		{
-			if(IsClientInGame(i))
-				Music_PlayNextSong(i);
-		}
-	}
-}
-
-void Music_PlaySong(const int[] clients, int numClients, const char[] sample = NULL_STRING, int source = 0, const char[] name = NULL_STRING, const char[] artist = NULL_STRING, float duration = 0.0, float volume = 1.0, int pitch = SNDPITCH_NORMAL)
-{
-	for(int i; i < numClients; i++)
-	{
-		if(CurrentTheme[clients[i]][0])
-		{
-			for(int a; a < CurrentVolume[clients[i]]; a++)
-			{
-				StopSound(clients[i], SNDCHAN_STATIC, CurrentTheme[clients[i]]);
-			}
-		}
-	}
-	
-	if(sample[0])
-	{
-		char songName[64];
-		if(name[0])
-			strcopy(songName, sizeof(songName), name);
-		
-		char songArtist[64];
-		if(artist[0])
-			strcopy(songArtist, sizeof(songArtist), artist);
-		
-		float time = duration;
-		char sample2[PLATFORM_MAX_PATH];
-		strcopy(sample2, sizeof(sample2), sample);
-		ForwardOld_OnMusic(sample2, time, songName, songArtist, clients[0]);
-		
-		if(time)
-		{
-			time += GetGameTime();
-		}
-		else
-		{
-			time = FAR_FUTURE;
-		}
-		
-		int count = RoundToCeil(volume);
-		float vol = volume / float(count);
-		
-		int[] clients2 = new int[numClients];
-		int amount;
-		
-		for(int i; i < numClients; i++)
-		{
-			if(name[0] || artist[0])
-			{
-				if(!name[0])
-					FormatEx(songName, sizeof(songName), "{default}%T", "Unknown Song", clients[i]);
-				
-				if(!artist[0])
-					FormatEx(songArtist, sizeof(songArtist), "{default}%T", "Unknown Artist", clients[i]);
-				
-				FPrintToChat(clients[i], "%t", "Now Playing", songArtist, songName);
-			}
-			
-			if(!Client(clients[i]).NoMusic)
-			{
-				clients2[amount++] = clients[i];
-				strcopy(CurrentTheme[clients[i]], sizeof(CurrentTheme[]), sample2);
-				NextThemeAt[clients[i]] = time;
-				CurrentVolume[clients[i]] = count;
-				CurrentSource[clients[i]] = source;
-			}
-		}
-		
-		for(int i; i < count; i++)
-		{
-			EmitSound(clients2, amount, sample2, _, SNDCHAN_STATIC, SNDLEVEL_NONE, _, vol, pitch);
-		}
-	}
-	else
-	{
-		for(int i; i < numClients; i++)
-		{
-			CurrentTheme[clients[i]][0] = 0;
-			NextThemeAt[clients[i]] = FAR_FUTURE;
-		}
-	}
-}
-
-void Music_PlaySongToClient(int client, const char[] sample = NULL_STRING, int source = 0, const char[] name = NULL_STRING, const char[] artist = NULL_STRING, float duration = 0.0, float volume = 1.0, int pitch = SNDPITCH_NORMAL)
-{
-	int clients[1];
-	clients[0] = client;
-	Music_PlaySong(clients, 1, sample, source, name, artist, duration, volume, pitch);
-}
-
-void Music_PlaySongToAll(const char[] sample = NULL_STRING, int source = 0, const char[] name = NULL_STRING, const char[] artist = NULL_STRING, float duration = 0.0, float volume = 1.0, int pitch = SNDPITCH_NORMAL)
-{
-	int[] clients = new int[MaxClients];
-	int total;
-	
 	for(int client = 1; client <= MaxClients; client++)
 	{
-		if(IsClientInGame(client))
-			clients[total++] = client;
-	}
-	
-	Music_PlaySong(clients, total, sample, source, name, artist, duration, volume, pitch);
-}
+		NextThemeAt[client] = (type > 1) ? NO_MUSIC_TIME : 0;
+		NextRabiesAt[client] = 0;
 
-public Action Music_Command(int client, int args)
-{
-	if(client)
-	{
-		if(args > 0)
+		if(IsClientInGame(client))
 		{
-			char buffer[16];
-			GetCmdArg(1, buffer, sizeof(buffer));
-			
-			if(StrContains(buffer, "#", false) == 0)
+			if(CurrentTheme[client][0])
 			{
-				int index = StringToInt(buffer[1]);
-				if(index >= 0 && index < Playlist.Length)
+				StopSound(client, SNDCHAN_STATIC, CurrentTheme[client]);
+				StopSound(client, SNDCHAN_STATIC, CurrentTheme[client]);
+				CurrentTheme[client][0] = 0;
+			}
+
+			// Zombie Fortress has starting/ending music
+			if(Client(client).MusicType == Theme_ZombieFortress && Client(client).SoundLevel > MusicLevelZombieFortress)
+			{
+				case 1:	// Round Start
 				{
-					MusicEnum music;
-					Playlist.GetArray(index, music);
-					
-					ConfigMap cfg = Bosses_GetConfig(music.Special);
-					if(cfg)
+					if(NewFullRound)
 					{
-						SoundEnum sound;
-						sound.Default();
-						if(Bosses_GetSpecificSoundCfg(cfg, music.Section, music.Key, sizeof(music.Key), sound))
+						switch(RoundRNG % 7)
 						{
-							Client(client).MusicShuffle = true;
+							case 0:
+								PlayMusic(client, "#szf/music/stmusic/deadeasy.mp3", 94);
 							
-							bool toggle = Client(client).NoMusic;
-							Client(client).NoMusic = false;
-							Music_PlaySongToClient(client, sound.Sound, music.Special, sound.Name, sound.Artist, sound.Time, sound.Volume, sound.Pitch);
-							Client(client).NoMusic = toggle;
+							case 1:
+								PlayMusic(client, "#szf/music/stmusic/deadlightdistrict.mp3", 81);
+							
+							case 2:
+								PlayMusic(client, "#szf/music/stmusic/deathisacarousel.mp3", 84);
+							
+							case 3:
+								PlayMusic(client, "#szf/music/stmusic/diedonthebayou.mp3", 81);
+							
+							case 4:
+								PlayMusic(client, "#szf/music/stmusic/osweetdeath.mp3", 78);
+							
+							case 5:
+								PlayMusic(client, "#szf/music/stmusic/southofhuman.mp3", 118);
+							
+							default:
+								PlayMusic(client, "#szf/music/stmusic/thesacrifice.mp3", 109);
+						}
+					}
+					else	// Multi-stage maps have a "safe room" theme
+					{
+						switch(RoundRNG % 5)
+						{
+							case 0:
+								PlayMusic(client, "#szf/music/cpmusic/bloodharvestor.mp3", 62);
+							
+							case 1:
+								PlayMusic(client, "#szf/music/cpmusic/deadairtime.mp3", 62);
+							
+							case 2:
+								PlayMusic(client, "#szf/music/cpmusic/deathtollcollector.mp3", 62);
+							
+							case 3:
+								PlayMusic(client, "#szf/music/cpmusic/nomercyforyou.mp3", 62);
+							
+							default:
+								PlayMusic(client, "#szf/music/cpmusic/prayfordeath.mp3", 62);
 						}
 					}
 				}
-				else
+				case 2:	// Humans Win
 				{
-					FReplyToCommand(client, "%t", "Music Unknown Arg", buffer);
+					PlayMusic(client, "#szf/music/safe/themonsterswithout.mp3", NO_MUSIC_TIME);
+				}
+				case 3:	// Humans Lose
+				{
+					PlayMusic(client, "#szf/music/undeath/death.mp3", NO_MUSIC_TIME);
 				}
 			}
-			else if(StrContains(buffer, "on", false) != -1 || StrEqual(buffer, "1") || StrContains(buffer, "enable", false) != -1)
+		}
+	}
+}
+
+void Music_PlayNextSong(int client)
+{
+	switch(Client(client).MusicType)
+	{
+		case Theme_ZombieRiot:
+		{
+			if(Client(client).SoundLevel <= MusicLevelZombieRiot)
 			{
-				Client(client).NoMusic = false;
-				if(Enabled && RoundStatus == 1)
-					Music_PlayNextSong(client);
+				NextThemeAt[client] = GetTime() + 20;
 			}
-			else if(StrContains(buffer, "off", false) != -1 || StrEqual(buffer, "0") || StrContains(buffer, "disable", false) != -1)
+			else if(Gamemode_InLastman(client))
 			{
-				Client(client).NoMusic = true;
-				Music_PlaySongToClient(client);
-				FReplyToCommand(client, "%t", "Music Disabled");
+				PlayMusic(client, "#zombiesurvival/lasthuman.mp3", 120);
 			}
-			else if(StrContains(buffer, "skip", false) != -1 || StrContains(buffer, "next", false) != -1)
+			else if(AreHumansLosing())
 			{
-				Client(client).MusicShuffle = false;
-				
-				bool toggle = Client(client).NoMusic;
-				Client(client).NoMusic = false;
-				Music_PlayNextSong(client);
-				Client(client).NoMusic = toggle;
-			}
-			else if(StrContains(buffer, "shuffle", false) != -1 || StrContains(buffer, "rand", false) != -1)
-			{
-				Client(client).MusicShuffle = true;
-				
-				bool toggle = Client(client).NoMusic;
-				Client(client).NoMusic = false;
-				Music_PlayNextSong(client);
-				Client(client).NoMusic = toggle;
-			}
-			else if(StrContains(buffer, "track", false) != -1 || StrContains(buffer, "list", false) != -1)
-			{
-				if(!client)
+				switch(GetIntensity(client))
 				{
-					MusicEnum music;
-					int length = Playlist.Length;
-					for(int i; i < length; i++)
+					case 0:
 					{
-						Playlist.GetArray(i, music);
-						
-						ConfigMap cfg = Bosses_GetConfig(music.Special);
-						if(cfg)
+						NextThemeAt[client] = GetTime() + 2;
+					}
+					case 1, 2:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/1.mp3", 6);
+					}
+					case 3, 4:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/2.mp3", 8);
+					}
+					case 5, 6:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/3.mp3", 8);
+					}
+					case 7, 8:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/4.mp3", 8);
+					}
+					case 9, 10:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/5.mp3", 8);
+					}
+					case 11, 12:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/6.mp3", 6);
+					}
+					case 13, 14:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/7.mp3", 6);
+					}
+					case 15, 16:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/8.mp3", 6);
+					}
+					case 17, 18:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/9.mp3", 6);
+					}
+					default:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaultzombiev2/10.mp3", 6);
+					}
+				}
+			}
+			else
+			{
+				switch(GetIntensity(client))
+				{
+					case 0:
+					{
+						NextThemeAt[client] = GetTime() + 3;
+					}
+					case 1, 2:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/1.mp3", 7);
+					}
+					case 3, 4:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/2.mp3", 7);
+					}
+					case 5, 6:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/3.mp3", 7);
+					}
+					case 7, 8:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/4.mp3", 7);
+					}
+					case 9, 10:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/5.mp3", 6);
+					}
+					case 11, 12:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/6.mp3", 14);
+					}
+					case 13, 14:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/7.mp3", 14);
+					}
+					case 15, 16:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/8.mp3", 7);
+					}
+					default:
+					{
+						PlayMusic(client, "#zombiesurvival/beats/defaulthuman/9.mp3", 14);
+					}
+				}
+			}
+		}
+		case Theme_ZombieFortress:
+		{
+			if(Client(client).SoundLevel <= MusicLevelZombieFortress)
+			{
+				NextThemeAt[client] = GetTime() + 20;
+			}
+			else if(Gamemode_InLastman(client))
+			{
+				StopRabies(client);
+				PlayMusic(client, "#szf/music/the_end/skinonourteeth.mp3", 96);
+			}
+			else
+			{
+				TFClassType class;
+				if(InCloseCombat(client, class))
+				{
+					StopRabies(client);
+
+					char buffer[PLATFORM_MAX_PATH];
+
+					switch(class)
+					{
+						case TFClass_Scout, TFClass_Medic, TFClass_Sniper:
 						{
-							SoundEnum sound;
-							sound.Default();
-							if(Bosses_GetSpecificSoundCfg(cfg, music.Section, music.Key, sizeof(music.Key), sound))
+							if(AreHumansLosing())
 							{
-								IntToString(i, music.Section, sizeof(music.Section));
-								
-								if(!sound.Name[0])
-									Format(sound.Name, sizeof(sound.Name), "%T", "Unknown Song", client);
-								
-								if(!sound.Artist[0])
-									Format(sound.Artist, sizeof(sound.Artist), "%T", "Unknown Artist", client);
-								
-								int time = RoundToFloor(sound.Time);
-								PrintToServer("#%d %s - %s (%d:%02d)", i, sound.Artist, sound.Name, time / 60, time % 60);
+								FormatEx(buffer, sizeof(buffer), DRUM_FILE, DrumSuffix[GetURandomInt() % sizeof(DrumSuffix)]);
+								PlayMusic(client, buffer, 6);
+							}
+							else
+							{
+								FormatEx(buffer, sizeof(buffer), TRUMPET_FILE, 1 + (GetURandomInt() % 16));
+								PlayMusic(client, buffer, 1);
+							}
+						}
+						case TFClass_Pyro, TFClass_Engineer, TFClass_Spy:
+						{
+							if(AreHumansLosing())
+							{
+								FormatEx(buffer, sizeof(buffer), VIOLIN_FILE, ViolinSuffix[GetURandomInt() % sizeof(ViolinSuffix)]);
+								PlayMusic(client, buffer, 6);
+							}
+							else
+							{
+								PlayMusic(client, "#szf/music/zombat/slayer/lectric/slayer_01a.mp3", 6);
+							}
+						}
+						default:
+						{
+							if(AreHumansLosing())
+							{
+								FormatEx(buffer, sizeof(buffer), BANJO_FILE, BanjoSuffix[GetURandomInt() % sizeof(BanjoSuffix)]);
+								PlayMusic(client, buffer, 6);
+							}
+							else if(GetURandomInt() % 2)
+							{
+								PlayMusic(client, "#szf/music/zombat/snare_horde_01_01a.mp3", 6);
+							}
+							else
+							{
+								PlayMusic(client, "#szf/music/zombat/snare_horde_01_01b.mp3", 6);
 							}
 						}
 					}
 				}
-				else if(GetCmdReplySource() == SM_REPLY_TO_CONSOLE)
-				{
-					DataPack pack = new DataPack();
-					pack.WriteCell(GetClientUserId(client));
-					pack.WriteCell(0);
-					RequestFrame(Music_DisplayTracks, pack);
-				}
 				else
 				{
-					Menu_Command(client);
-					PlaylistMenu(client);
-				}
-			}
-			else
-			{
-				FReplyToCommand(client, "%t", "Music Unknown Arg", buffer);
-			}
-		}
-		else if(GetCmdReplySource() == SM_REPLY_TO_CONSOLE)
-		{
-			ReplyToCommand(client, "[SM] Usage: ff2_music <param>");
-		}
-		else
-		{
-			Menu_Command(client);
-			Music_MainMenu(client);
-		}
-	}
-	else
-	{
-		MusicEnum music;
-		SoundEnum sound;
-		int length = Playlist.Length;
-		for(int i; i < length; i++)
-		{
-			Playlist.GetArray(i, music);
-			
-			sound.Default();
-			ConfigMap cfg = Bosses_GetConfig(music.Special);
-			if(cfg && Bosses_GetSpecificSoundCfg(cfg, music.Section, music.Key, sizeof(music.Key), sound))
-			{
-				if(!sound.Name[0])
-					Format(sound.Name, sizeof(sound.Name), "%T", "Unknown Song", LANG_SERVER);
-				
-				if(!sound.Artist[0])
-					Format(sound.Artist, sizeof(sound.Artist), "%T", "Unknown Artist", LANG_SERVER);
-				
-				int time = RoundToFloor(sound.Time);
-				PrintToServer("#%d %s - %s (%d:%02d) | '%d' '%s' '%s'", i, sound.Artist, sound.Name, time / 60, time % 60, music.Special, music.Section, music.Key);
-			}
-			else
-			{
-				PrintToServer("#%d | '%d' '%s' '%s'", i, music.Special, music.Section, music.Key);
-			}
-		}
-	}
-	
-	return Plugin_Handled;
-}
-
-void Music_MainMenu(int client)
-{
-	Menu menu = new Menu(Music_MainMenuH);
-	
-	SetGlobalTransTarget(client);
-	menu.SetTitle("%t", "Music Menu");
-	
-	char buffer[64];
-	FormatEx(buffer, sizeof(buffer), "%t", !Client(client).NoMusic ? Client(client).MusicShuffle ? "Music Disable" : "Music Random" : "Music Enable");
-	menu.AddItem(NULL_STRING, buffer);
-	
-	FormatEx(buffer, sizeof(buffer), "%t", "Music Skip");
-	menu.AddItem(NULL_STRING, buffer);
-	
-	FormatEx(buffer, sizeof(buffer), "%t", "Music Shuffle");
-	menu.AddItem(NULL_STRING, buffer);
-	
-	FormatEx(buffer, sizeof(buffer), "%t", "Music List");
-	menu.AddItem(NULL_STRING, buffer);
-	
-	menu.ExitButton = true;
-	menu.ExitBackButton = Menu_BackButton(client);
-	menu.Display(client, MENU_TIME_FOREVER);
-}
-
-public int Music_MainMenuH(Menu menu, MenuAction action, int client, int choice)
-{
-	switch(action)
-	{
-		case MenuAction_End:
-		{
-			delete menu;
-		}
-		case MenuAction_Cancel:
-		{
-			if(choice == MenuCancel_ExitBack)
-				Menu_MainMenu(client);
-		}
-		case MenuAction_Select:
-		{
-			switch(choice)
-			{
-				case 0:
-				{
-					if(Client(client).NoMusic)
+					int time = GetTime();
+					if(NextRabiesAt[client] <= time)
 					{
-						Client(client).NoMusic = false;
-						Music_PlayNextSong(client);
+						switch(GetURandomInt() % 4)
+						{
+							case 0:
+								PlayRabies(client, "#szf/music/contagion/l4d2_rabies_01.mp3", 35);
+							
+							case 1:
+								PlayRabies(client, "#szf/music/contagion/l4d2_rabies_02.mp3", 39);
+							
+							case 2:
+								PlayRabies(client, "#szf/music/contagion/l4d2_rabies_03.mp3", 42);
+							
+							default:
+								PlayRabies(client, "#szf/music/contagion/l4d2_rabies_04.mp3", 45);
+						}
 					}
-					else if(Client(client).MusicShuffle)
-					{
-						Client(client).MusicShuffle = false;
-						Client(client).NoMusic = true;
-						Music_PlaySongToClient(client);
-					}
-					else
-					{
-						Client(client).MusicShuffle = true;
-						Music_PlayNextSong(client);
-					}
-					
-					Music_MainMenu(client);
-				}
-				case 1:
-				{
-					bool toggle = Client(client).NoMusic;
-					bool shuffle = Client(client).MusicShuffle;
-					
-					Client(client).NoMusic = false;
-					Client(client).MusicShuffle = false;
-					
-					Music_PlayNextSong(client);
-					
-					Client(client).NoMusic = toggle;
-					Client(client).MusicShuffle = shuffle;
-					
-					Music_MainMenu(client);
-				}
-				case 2:
-				{
-					bool toggle = Client(client).NoMusic;
-					bool shuffle = Client(client).MusicShuffle;
-					
-					Client(client).NoMusic = false;
-					Client(client).MusicShuffle = true;
-					
-					Music_PlayNextSong(client);
-					
-					Client(client).NoMusic = toggle;
-					Client(client).MusicShuffle = shuffle;
-					
-					Music_MainMenu(client);
-				}
-				case 3:
-				{
-					PlaylistMenu(client);
+
+					NextThemeAt[client] = time + 1;
 				}
 			}
 		}
+		default:
+		{
+			NextThemeAt[client] = NO_MUSIC_TIME;
+		}
 	}
-	return 0;
 }
 
-static void PlaylistMenu(int client, int page = 0)
+static void PlayMusic(int client, const char[] sound, int time)
 {
-	Menu menu = new Menu(Music_PlaylistMenuH);
-	
-	menu.SetTitle("%t", "Music Menu");
-	
-	// We're just gonna use special indexes, may later use the actual config
-	
-	int special1 = -1;
-	int special2 = -1;
-	if(Client(client).IsBoss)
-		Client(client).Cfg.GetInt("special", special1);
-	
-	if(special1 == -1 || !ForwardOld_OnMusicPerBoss(client))
-	{
-		for(int i; i < MaxClients; i++)
-		{
-			int boss = FindClientOfBossIndex(i);
-			if(boss != -1 && Client(boss).Cfg.GetInt("special", special2))
-				break;
-		}
-	}
-	
-	menu.AddItem("-1", " --- ", ITEMDRAW_DISABLED);
-	
-	MusicEnum music;
-	int length = Playlist.Length;
-	for(int i; i < length; i++)
-	{
-		Playlist.GetArray(i, music);
-		
-		ConfigMap cfg = Bosses_GetConfig(music.Special);
-		if(cfg)
-		{
-			SoundEnum sound;
-			sound.Default();
-			if(Bosses_GetSpecificSoundCfg(cfg, music.Section, music.Key, sizeof(music.Key), sound))
-			{
-				IntToString(i, music.Section, sizeof(music.Section));
-				
-				if(!sound.Name[0])
-					Format(sound.Name, sizeof(sound.Name), "%T", "Unknown Song", client);
-				
-				if(!sound.Artist[0])
-					Format(sound.Artist, sizeof(sound.Artist), "%T", "Unknown Artist", client);
-				
-				int time = RoundToFloor(sound.Time);
-				Format(music.Key, sizeof(music.Key), "%s - %s (%d:%02d)", sound.Artist, sound.Name, time / 60, time % 60);
-				
-				if(music.Special == special1 || music.Special == special2)
-				{
-					menu.InsertItem(0, music.Section, music.Key);
-				}
-				else
-				{
-					menu.AddItem(music.Section, music.Key);
-				}
-			}
-		}
-	}
-	
-	menu.ExitButton = true;
-	menu.ExitBackButton = true;
-	menu.DisplayAt(client, page, MENU_TIME_FOREVER);
+	strcopy(CurrentTheme[client], sizeof(CurrentTheme[]), sound);
+	EmitSoundToClient(client, CurrentTheme[client], _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+	NextThemeAt[client] = GetTime() + time;
 }
 
-public int Music_PlaylistMenuH(Menu menu, MenuAction action, int client, int choice)
+static void PlayRabies(int client, const char[] sound, int time)
 {
-	switch(action)
-	{
-		case MenuAction_End:
-		{
-			delete menu;
-		}
-		case MenuAction_Cancel:
-		{
-			if(choice == MenuCancel_ExitBack)
-				Music_MainMenu(client);
-		}
-		case MenuAction_Select:
-		{
-			MusicEnum music;
-			menu.GetItem(choice, music.Section, sizeof(music.Section));
-			int index = StringToInt(music.Section);
-			if(index >= 0 && index < Playlist.Length)
-			{
-				Playlist.GetArray(index, music);
-				
-				ConfigMap cfg = Bosses_GetConfig(music.Special);
-				if(cfg)
-				{
-					SoundEnum sound;
-					sound.Default();
-					if(Bosses_GetSpecificSoundCfg(cfg, music.Section, music.Key, sizeof(music.Key), sound))
-					{
-						bool toggle = Client(client).NoMusic;
-						Client(client).NoMusic = false;
-						Music_PlaySongToClient(client, sound.Sound, music.Special, sound.Name, sound.Artist, sound.Time, sound.Volume, sound.Pitch);
-						Client(client).NoMusic = toggle;
-					}
-				}
-			}
-			
-			PlaylistMenu(client, choice / 7 * 7);
-		}
-	}
-	return 0;
+	strcopy(CurrentTheme[client], sizeof(CurrentTheme[]), sound);
+	EmitSoundToClient(client, CurrentTheme[client], _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+	NextRabiesAt[client] = GetTime() + time;
 }
 
-public void Music_DisplayTracks(DataPack pack)
+static void StopRabies(int client)
 {
-	pack.Reset();
-	int client = GetClientOfUserId(pack.ReadCell());
-	if(client)
+	if(CurrentTheme[client][0] && StrContains(CurrentTheme[client], "contagion"))
 	{
-		int index = pack.ReadCell();
-		int length = Playlist.Length;
-		if(index < length)
+		StopSound(client, SNDCHAN_STATIC, CurrentTheme[client]);
+		StopSound(client, SNDCHAN_STATIC, CurrentTheme[client]);
+		CurrentTheme[client][0] = 0;
+	}
+}
+
+static int GetIntensity(int client)
+{
+	int intensity;
+
+	float pos1[3], pos2[3];
+	GetClientEyePosition(client, pos1);
+	int team = GetClientTeam(client);
+
+	for(int target = 1; target <= MaxClients; target++)
+	{
+		if(IsClientInGame(target) && GetClientTeam(target) != team && IsPlayerAlive(target))
 		{
-			MusicEnum music;
-			Playlist.GetArray(index, music);
-			
-			ConfigMap cfg = Bosses_GetConfig(music.Special);
-			if(cfg)
+			GetClientAbsOrigin(target, pos2);
+
+			float distance = GetVectorDistance(pos1, pos2, true);
+			if(distance < 1000000.0)	// 1000 HU
 			{
-				SoundEnum sound;
-				sound.Default();
-				if(Bosses_GetSpecificSoundCfg(cfg, music.Section, music.Key, sizeof(music.Key), sound))
-				{
-					if(!sound.Name[0])
-						Format(sound.Name, sizeof(sound.Name), "%T", "Unknown Song", client);
-					
-					if(!sound.Artist[0])
-						Format(sound.Artist, sizeof(sound.Artist), "%T", "Unknown Artist", client);
-					
-					int time = RoundToFloor(sound.Time);
-					PrintToConsole(client, "#%d %s - %s (%d:%02d)", index, sound.Artist, sound.Name, time / 60, time % 60);
-				}
+				intensity += 2;
 			}
-			
-			pack.Position--;
-			pack.WriteCell(index+1, false);
-			RequestFrame(Music_DisplayTracks, pack);
-			return;
+			else if(distance < 6250000.0)	// 2500 HU
+			{
+				intensity++;
+			}
 		}
 	}
+
+	return intensity;
+}
+
+static bool InCloseCombat(int client, TFClassType &class)
+{
+	float pos1[3], pos2[3];
+	GetClientEyePosition(client, pos1);
+	int team = GetClientTeam(client);
+
+	for(int target = 1; target <= MaxClients; target++)
+	{
+		if(IsClientInGame(target) && GetClientTeam(target) != team && IsPlayerAlive(target))
+		{
+			GetClientAbsOrigin(target, pos2);
+
+			if(GetVectorDistance(pos1, pos2, true) < 250000.0)	// 500 HU
+			{
+				class = TF2_GetPlayerClass(team == TFTeam_Human ? target : client);
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+static bool AreHumansLosing()
+{
+	int humans, total;
 	
-	delete pack;
+	for(int target = 1; target <= MaxClients; target++)
+	{
+		if(IsClientInGame(target))
+		{
+			switch(GetClientTeam(target))
+			{
+				case TFTeam_Human:
+				{
+					total++;
+
+					if(IsPlayerAlive(target))
+						humans++;
+				}
+				case TFTeam_Zombie:
+				{
+					total++;
+				}
+			}
+		}
+	}
+
+	return humans < (total / 2);
 }

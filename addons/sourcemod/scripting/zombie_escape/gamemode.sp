@@ -349,7 +349,70 @@ void Gamemode_ClientDisconnect(int client)
 
 bool Gamemode_ForceRespawn(int client)
 {
+	if(GetClientTeam(client) == TFTeam_Zombie)
+	{
+		float pos[3], ang[3];
+
+		int target = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
+		if(target > 0 && target <= MaxClients && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target) && Client(target).Cripple > 0.0)
+		{
+			GetClientAbsOrigin(target, pos);
+			GetClientEyeAngles(target, ang);
+		}
+
+		if(!pos[0])
+		{
+			for(target = 1; target <= MaxClients; target++)
+			{
+				if(IsClientInGame(target) && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target) && Client(target).Cripple > 0.0)
+				{
+					GetClientAbsOrigin(target, pos);
+					GetClientEyeAngles(target, ang);
+					break;
+				}
+			}
+		}
+
+		if(!pos[0])
+		{
+			PrintCenterText(client, "No safe spawn location...");
+			return true;
+		}
+		
+		DataPack pack = new DataPack();
+		RequestFrame(Gamemode_SpawnFrame, pack);
+		pack.WriteCell(GetClientUserId(client));
+		
+		for(int i; i < 3; i++)
+		{
+			pack.WriteFloat(pos[i]);
+			pack.WriteFloat(ang[i]);
+		}
+
+		return false;
+	}
 	return false;
+}
+
+public void Gamemode_SpawnFrame(DataPack pack)
+{
+	pack.Reset();
+
+	int client = GetClientOfUserId(pack.ReadCell());
+	if(client)
+	{
+		float pos[3], ang[3];
+		for(int i; i < 3; i++)
+		{
+			pos[i] = pack.ReadFloat();
+			ang[i] = pack.ReadFloat();
+		}
+
+		TeleportEntity(client, pos, ang);
+		TF2_StunPlayer(client, 5.0, 0.8, TF_STUNFLAGS_LOSERSTATE);
+	}
+
+	delete pack;
 }
 
 bool Gamemode_InLastman()
@@ -377,13 +440,26 @@ void Gamemode_TakeDamage(int victim, float damage, int damagetype)
 
 public Action Timer_CrippleUpdate(Handle timer, int client)
 {
-	if(Client(client).Cripple <= 0.0)
+	if(Client(client).Cripple == 0.0)
 	{
 		CrippleTimer[client] = null;
 		return Plugin_Stop;
 	}
 
-	if(Client(client).Cripple > 800.0)
+	if(Client(client).Cripple < 0.0)
+	{
+		if(Client(client).Cripple < -400.0)
+		{
+			Client(client).Cripple = 399.0;
+		}
+		else
+		{
+			Client(client).Cripple += 1.0;
+			if(Client(client).Cripple > 0.0)
+				Client(client).Cripple = 0.0;
+		}
+	}
+	else if(Client(client).Cripple > 800.0)
 	{
 		Client(client).Cripple = 790.0;
 	}
