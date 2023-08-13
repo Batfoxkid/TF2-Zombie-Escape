@@ -45,6 +45,17 @@ public Action Menu_MainMenuCmd(int client, int args)
 		
 		if(Cvar[Debugging].BoolValue)
 			PrintToServer("Debug Mode Enabled");
+		
+		DHook_PluginStatus();
+		SDKCall_PluginStatus();
+		
+		DataBase_PluginStatus();
+		
+		TFED_PluginStatus();
+		FileNet_PluginStatus();
+		SDKHook_PluginStatus();
+		SteamWorks_PluginStatus();
+		Weapons_PluginStatus();
 	}
 	else if(GetCmdReplySource() == SM_REPLY_TO_CONSOLE)
 	{
@@ -95,7 +106,7 @@ public int Menu_MainMenuH(Menu menu, MenuAction action, int client, int choice)
 				}
 				case 1:
 				{
-					//Music_MainMenu(client);
+					Music_Menu(client);
 				}
 			}
 		}

@@ -118,78 +118,93 @@ void Music_PluginStart()
 
 void Music_MapStart()
 {
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/1.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/2.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/3.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/4.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/5.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/6.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/7.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/8.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaulthuman/9.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/1.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/2.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/3.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/4.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/5.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/6.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/7.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/8.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/9.mp3");
-	PrecacheSoundCustom("#zombiesurvival/beats/defaultzombiev2/10.mp3");
-	MusicLevelZombieRiot = PrecacheSoundCustom("#zombiesurvival/lasthuman.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/1.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/2.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/3.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/4.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/5.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/6.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/7.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/8.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaulthuman/9.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/1.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/2.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/3.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/4.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/5.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/6.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/7.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/8.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/9.mp3");
+	FileNet_PrecacheSound("#zombiesurvival/beats/defaultzombiev2/10.mp3");
+	MusicLevelZombieRiot = FileNet_PrecacheSound("#zombiesurvival/lasthuman.mp3");
 	
 	
 	char buffer[PLATFORM_MAX_PATH];
 	for(int i; i < sizeof(DrumSuffix); i++)
 	{
 		FormatEx(buffer, sizeof(buffer), DRUM_FILE, DrumSuffix[i]);
-		PrecacheSoundCustom(buffer);
+		FileNet_PrecacheSound(buffer);
 	}
 	for(int i; i < sizeof(ViolinSuffix); i++)
 	{
 		FormatEx(buffer, sizeof(buffer), VIOLIN_FILE, ViolinSuffix[i]);
-		PrecacheSoundCustom(buffer);
+		FileNet_PrecacheSound(buffer);
 	}
 	for(int i; i < sizeof(BanjoSuffix); i++)
 	{
 		FormatEx(buffer, sizeof(buffer), BANJO_FILE, BanjoSuffix[i]);
-		PrecacheSoundCustom(buffer);
+		FileNet_PrecacheSound(buffer);
 	}
 	for(int i = 1; i < 16; i++)
 	{
 		FormatEx(buffer, sizeof(buffer), TRUMPET_FILE, i);
-		PrecacheSoundCustom(buffer);
+		FileNet_PrecacheSound(buffer);
 	}
 
-	PrecacheSoundCustom("#szf/music/zombat/slayer/lectric/slayer_01a.mp3");
-	PrecacheSoundCustom("#szf/music/zombat/snare_horde_01_01a.mp3");
-	PrecacheSoundCustom("#szf/music/zombat/snare_horde_01_01b.mp3");
-	PrecacheSoundCustom("#szf/music/contagion/l4d2_rabies_01.mp3");
-	PrecacheSoundCustom("#szf/music/contagion/l4d2_rabies_02.mp3");
-	PrecacheSoundCustom("#szf/music/contagion/l4d2_rabies_03.mp3");
-	PrecacheSoundCustom("#szf/music/contagion/l4d2_rabies_04.mp3");
-	PrecacheSoundCustom("#szf/music/stmusic/deadeasy.mp3");
-	PrecacheSoundCustom("#szf/music/stmusic/deadlightdistrict.mp3");
-	PrecacheSoundCustom("#szf/music/stmusic/deathisacarousel.mp3");
-	PrecacheSoundCustom("#szf/music/stmusic/diedonthebayou.mp3");
-	PrecacheSoundCustom("#szf/music/stmusic/osweetdeath.mp3");
-	PrecacheSoundCustom("#szf/music/stmusic/southofhuman.mp3");
-	PrecacheSoundCustom("#szf/music/stmusic/thesacrifice.mp3");
-	PrecacheSoundCustom("#szf/music/cpmusic/bloodharvestor.mp3");
-	PrecacheSoundCustom("#szf/music/cpmusic/deadairtime.mp3");
-	PrecacheSoundCustom("#szf/music/cpmusic/deathtollcollector.mp3");
-	PrecacheSoundCustom("#szf/music/cpmusic/nomercyforyou.mp3");
-	PrecacheSoundCustom("#szf/music/cpmusic/prayfordeath.mp3");
-	PrecacheSoundCustom("#szf/music/terror/theend.mp3");
-	PrecacheSoundCustom("#szf/music/the_end/skinonourteeth.mp3");
-	PrecacheSoundCustom("#szf/music/undeath/death.mp3");
-	MusicLevelZombieFortress = PrecacheSoundCustom("#szf/music/safe/themonsterswithout.mp3");
+	FileNet_PrecacheSound("#szf/music/zombat/slayer/lectric/slayer_01a.mp3");
+	FileNet_PrecacheSound("#szf/music/zombat/snare_horde_01_01a.mp3");
+	FileNet_PrecacheSound("#szf/music/zombat/snare_horde_01_01b.mp3");
+	FileNet_PrecacheSound("#szf/music/contagion/l4d2_rabies_01.mp3");
+	FileNet_PrecacheSound("#szf/music/contagion/l4d2_rabies_02.mp3");
+	FileNet_PrecacheSound("#szf/music/contagion/l4d2_rabies_03.mp3");
+	FileNet_PrecacheSound("#szf/music/contagion/l4d2_rabies_04.mp3");
+	FileNet_PrecacheSound("#szf/music/stmusic/deadeasy.mp3");
+	FileNet_PrecacheSound("#szf/music/stmusic/deadlightdistrict.mp3");
+	FileNet_PrecacheSound("#szf/music/stmusic/deathisacarousel.mp3");
+	FileNet_PrecacheSound("#szf/music/stmusic/diedonthebayou.mp3");
+	FileNet_PrecacheSound("#szf/music/stmusic/osweetdeath.mp3");
+	FileNet_PrecacheSound("#szf/music/stmusic/southofhuman.mp3");
+	FileNet_PrecacheSound("#szf/music/stmusic/thesacrifice.mp3");
+	FileNet_PrecacheSound("#szf/music/cpmusic/bloodharvestor.mp3");
+	FileNet_PrecacheSound("#szf/music/cpmusic/deadairtime.mp3");
+	FileNet_PrecacheSound("#szf/music/cpmusic/deathtollcollector.mp3");
+	FileNet_PrecacheSound("#szf/music/cpmusic/nomercyforyou.mp3");
+	FileNet_PrecacheSound("#szf/music/cpmusic/prayfordeath.mp3");
+	FileNet_PrecacheSound("#szf/music/terror/theend.mp3");
+	FileNet_PrecacheSound("#szf/music/the_end/skinonourteeth.mp3");
+	FileNet_PrecacheSound("#szf/music/undeath/death.mp3");
+	MusicLevelZombieFortress = FileNet_PrecacheSound("#szf/music/safe/themonsterswithout.mp3");
 
 	NewFullRound = true;
 }
 
-void Music_RoundStart()
+void Music_PluginEnd()
+{
+	for(int client = 1; client <= MaxClients; client++)
+	{
+		if(IsClientInGame(client))
+			StopMusic(client);
+	}
+}
+
+void Music_ClientCached(int client)
+{
+	if(NextThemeAt[client] == NO_MUSIC_TIME)
+		NextThemeAt[client] = 0;
+}
+
+void Music_RoundSetup()
 {
 	if(NewFullRound)
 		RoundRNG = GetURandomInt();
@@ -219,72 +234,70 @@ void Music_ForceNextSong(int type = 0)
 
 		if(IsClientInGame(client))
 		{
-			if(CurrentTheme[client][0])
-			{
-				StopSound(client, SNDCHAN_STATIC, CurrentTheme[client]);
-				StopSound(client, SNDCHAN_STATIC, CurrentTheme[client]);
-				CurrentTheme[client][0] = 0;
-			}
+			StopMusic(client);
 
 			// Zombie Fortress has starting/ending music
 			if(Client(client).MusicType == Theme_ZombieFortress && Client(client).SoundLevel > MusicLevelZombieFortress)
 			{
-				case 1:	// Round Start
+				switch(type)
 				{
-					if(NewFullRound)
+					case 1:	// Round Start
 					{
-						switch(RoundRNG % 7)
+						if(NewFullRound)
 						{
-							case 0:
-								PlayMusic(client, "#szf/music/stmusic/deadeasy.mp3", 94);
-							
-							case 1:
-								PlayMusic(client, "#szf/music/stmusic/deadlightdistrict.mp3", 81);
-							
-							case 2:
-								PlayMusic(client, "#szf/music/stmusic/deathisacarousel.mp3", 84);
-							
-							case 3:
-								PlayMusic(client, "#szf/music/stmusic/diedonthebayou.mp3", 81);
-							
-							case 4:
-								PlayMusic(client, "#szf/music/stmusic/osweetdeath.mp3", 78);
-							
-							case 5:
-								PlayMusic(client, "#szf/music/stmusic/southofhuman.mp3", 118);
-							
-							default:
-								PlayMusic(client, "#szf/music/stmusic/thesacrifice.mp3", 109);
+							switch(RoundRNG % 7)
+							{
+								case 0:
+									PlayMusic(client, "#szf/music/stmusic/deadeasy.mp3", 94);
+								
+								case 1:
+									PlayMusic(client, "#szf/music/stmusic/deadlightdistrict.mp3", 81);
+								
+								case 2:
+									PlayMusic(client, "#szf/music/stmusic/deathisacarousel.mp3", 84);
+								
+								case 3:
+									PlayMusic(client, "#szf/music/stmusic/diedonthebayou.mp3", 81);
+								
+								case 4:
+									PlayMusic(client, "#szf/music/stmusic/osweetdeath.mp3", 78);
+								
+								case 5:
+									PlayMusic(client, "#szf/music/stmusic/southofhuman.mp3", 118);
+								
+								default:
+									PlayMusic(client, "#szf/music/stmusic/thesacrifice.mp3", 109);
+							}
+						}
+						else	// Multi-stage maps have a "safe room" theme
+						{
+							switch(RoundRNG % 5)
+							{
+								case 0:
+									PlayMusic(client, "#szf/music/cpmusic/bloodharvestor.mp3", 62);
+								
+								case 1:
+									PlayMusic(client, "#szf/music/cpmusic/deadairtime.mp3", 62);
+								
+								case 2:
+									PlayMusic(client, "#szf/music/cpmusic/deathtollcollector.mp3", 62);
+								
+								case 3:
+									PlayMusic(client, "#szf/music/cpmusic/nomercyforyou.mp3", 62);
+								
+								default:
+									PlayMusic(client, "#szf/music/cpmusic/prayfordeath.mp3", 62);
+							}
 						}
 					}
-					else	// Multi-stage maps have a "safe room" theme
+					case 2:	// Humans Win
 					{
-						switch(RoundRNG % 5)
-						{
-							case 0:
-								PlayMusic(client, "#szf/music/cpmusic/bloodharvestor.mp3", 62);
-							
-							case 1:
-								PlayMusic(client, "#szf/music/cpmusic/deadairtime.mp3", 62);
-							
-							case 2:
-								PlayMusic(client, "#szf/music/cpmusic/deathtollcollector.mp3", 62);
-							
-							case 3:
-								PlayMusic(client, "#szf/music/cpmusic/nomercyforyou.mp3", 62);
-							
-							default:
-								PlayMusic(client, "#szf/music/cpmusic/prayfordeath.mp3", 62);
-						}
+						PlayMusic(client, "#szf/music/safe/themonsterswithout.mp3", NO_MUSIC_TIME);
 					}
-				}
-				case 2:	// Humans Win
-				{
-					PlayMusic(client, "#szf/music/safe/themonsterswithout.mp3", NO_MUSIC_TIME);
-				}
-				case 3:	// Humans Lose
-				{
-					PlayMusic(client, "#szf/music/undeath/death.mp3", NO_MUSIC_TIME);
+					case 3:	// Humans Lose
+					{
+						PlayMusic(client, "#szf/music/undeath/death.mp3", NO_MUSIC_TIME);
+					}
 				}
 			}
 		}
@@ -301,7 +314,7 @@ void Music_PlayNextSong(int client)
 			{
 				NextThemeAt[client] = GetTime() + 20;
 			}
-			else if(Gamemode_InLastman(client))
+			else if(Gamemode_InLastman())
 			{
 				PlayMusic(client, "#zombiesurvival/lasthuman.mp3", 120);
 			}
@@ -408,7 +421,7 @@ void Music_PlayNextSong(int client)
 			{
 				NextThemeAt[client] = GetTime() + 20;
 			}
-			else if(Gamemode_InLastman(client))
+			else if(Gamemode_InLastman())
 			{
 				StopRabies(client);
 				PlayMusic(client, "#szf/music/the_end/skinonourteeth.mp3", 96);
@@ -513,6 +526,16 @@ static void PlayRabies(int client, const char[] sound, int time)
 	NextRabiesAt[client] = GetTime() + time;
 }
 
+static void StopMusic(int client)
+{
+	if(CurrentTheme[client][0])
+	{
+		StopSound(client, SNDCHAN_STATIC, CurrentTheme[client]);
+		StopSound(client, SNDCHAN_STATIC, CurrentTheme[client]);
+		CurrentTheme[client][0] = 0;
+	}
+}
+
 static void StopRabies(int client)
 {
 	if(CurrentTheme[client][0] && StrContains(CurrentTheme[client], "contagion"))
@@ -601,4 +624,161 @@ static bool AreHumansLosing()
 	}
 
 	return humans < (total / 2);
+}
+
+public Action Music_Command(int client, int args)
+{
+	if(!client)
+	{
+		ReplyToCommand(client, "[SM] %t", "Command is in-game only");
+	}
+	else if(GetCmdReplySource() == SM_REPLY_TO_CONSOLE)
+	{
+		SetGlobalTransTarget(client);
+
+		char buffer[16];
+		GetCmdArg(1, buffer, sizeof(buffer));
+		if(buffer[0] == 'o' || buffer[0] == 'O' || buffer[0] == '0')
+		{
+			Client(client).MusicType = 0;
+
+			StopMusic(client);
+
+			PrintToConsole(client, "[ZE] %t", "Music Turned Off");
+		}
+		else if(buffer[0] == 'r' || buffer[0] == 'R' || buffer[0] == '1')
+		{
+			Client(client).MusicType = 1;
+			
+			StopMusic(client);
+			NextThemeAt[client] = 0;
+			NextRabiesAt[client] = 0;
+			
+			PrintToConsole(client, "[ZE] %t", "Music Set", "Music Riot");
+		}
+		else if(buffer[0] == 's' || buffer[0] == 'S' || buffer[0] == '2')
+		{
+			Client(client).MusicType = 2;
+			
+			StopMusic(client);
+			NextThemeAt[client] = 0;
+			NextRabiesAt[client] = 0;
+			
+			PrintToConsole(client, "[ZE] %t", "Music Set", "Music Fortress");
+		}
+		else
+		{
+			PrintToConsole(client, "[ZE] %t", "Music Unknown Arg", buffer);
+		}
+	}
+	else
+	{
+		Menu_Command(client);
+		Music_Menu(client);
+	}
+	return Plugin_Handled;
+}
+
+void Music_Menu(int client)
+{
+	Menu menu = new Menu(Music_MenuH);
+
+	SetGlobalTransTarget(client);
+	menu.SetTitle("%t", (Client(client).SoundLevel < 1) ? "Music Menu Disabled" : "Music Menu Normal");
+
+	char buffer[64];
+	int style = ITEMDRAW_DEFAULT;
+
+	if(Client(client).SoundLevel < 1)
+	{
+		FormatEx(buffer, sizeof(buffer), "%t", "Music Disable");
+		style = ITEMDRAW_DISABLED;
+	}
+	else if(Client(client).MusicType == 0)
+	{
+		FormatEx(buffer, sizeof(buffer), "%t %t", "Music Disable", "Music Selected");
+		style = ITEMDRAW_DISABLED;
+	}
+	else
+	{
+		FormatEx(buffer, sizeof(buffer), "%t", "Music Disable");
+	}
+
+	menu.AddItem(NULL_STRING, buffer, style);
+
+	if(Client(client).SoundLevel < 1 || !MusicLevelZombieRiot)
+	{
+		FormatEx(buffer, sizeof(buffer), "%t", "Music Riot");
+		style = ITEMDRAW_DISABLED;
+	}
+	else if(Client(client).SoundLevel <= MusicLevelZombieRiot)
+	{
+		float progress = float(Client(client).SoundLevel * 100) / float(MusicLevelZombieRiot);
+		FormatEx(buffer, sizeof(buffer), "%t %t", "Music Riot", "Music Downloading", progress);
+		style = ITEMDRAW_DISABLED;
+	}
+	else if(Client(client).MusicType == Theme_ZombieRiot)
+	{
+		FormatEx(buffer, sizeof(buffer), "%t %t", "Music Riot", "Music Selected");
+		style = ITEMDRAW_DISABLED;
+	}
+	else
+	{
+		FormatEx(buffer, sizeof(buffer), "%t", "Music Riot");
+		style = ITEMDRAW_DEFAULT;
+	}
+
+	menu.AddItem(NULL_STRING, buffer, style);
+
+	if(Client(client).SoundLevel < 1 || !MusicLevelZombieFortress)
+	{
+		FormatEx(buffer, sizeof(buffer), "%t", "Music Fortress");
+		style = ITEMDRAW_DISABLED;
+	}
+	else if(Client(client).SoundLevel <= MusicLevelZombieFortress)
+	{
+		float progress = float((Client(client).SoundLevel - MusicLevelZombieRiot) * 100) / float(MusicLevelZombieFortress - MusicLevelZombieRiot);
+		if(progress < 0.0)
+			progress = 0.0;
+		
+		FormatEx(buffer, sizeof(buffer), "%t %t", "Music Fortress", "Music Downloading", progress);
+		style = ITEMDRAW_DISABLED;
+	}
+	else if(Client(client).MusicType == Theme_ZombieFortress)
+	{
+		FormatEx(buffer, sizeof(buffer), "%t %t", "Music Fortress", "Music Selected");
+		style = ITEMDRAW_DISABLED;
+	}
+	else
+	{
+		FormatEx(buffer, sizeof(buffer), "%t", "Music Fortress");
+		style = ITEMDRAW_DEFAULT;
+	}
+
+	menu.AddItem(NULL_STRING, buffer, style);
+
+	menu.ExitBackButton = Menu_BackButton(client);
+	menu.Display(client, MENU_TIME_FOREVER);
+}
+
+public int Music_MenuH(Menu menu, MenuAction action, int client, int choice)
+{
+	switch(action)
+	{
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+		case MenuAction_Select:
+		{
+			Client(client).MusicType = choice;
+			
+			StopMusic(client);
+			NextThemeAt[client] = 0;
+			NextRabiesAt[client] = 0;
+			
+			Music_Menu(client);
+		}
+	}
+	return 0;
 }

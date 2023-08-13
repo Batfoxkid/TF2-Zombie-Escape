@@ -25,6 +25,15 @@
 static bool Loaded;
 #endif
 
+void TFED_PluginStatus()
+{
+	#if defined __tf_econ_data_included
+	PrintToServer("SM-TFEconData: %s", Loaded ? "Running" : "Library not running");
+	#else
+	PrintToServer("SM-TFEconData: Compiled without include \"tf_econ_data\"");
+	#endif
+}
+
 void TFED_PluginLoad()
 {
 	#if defined __tf_econ_data_included

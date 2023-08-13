@@ -34,6 +34,15 @@ static bool OTDLoaded;
 static int CurrentEntities;
 static float AdjustDamagePos[MAXTF2PLAYERS];
 
+void SDKHook_PluginStatus()
+{
+	#if defined __tf_econ_data_included
+	PrintToServer("SM-TFOnTakeDamage: %s", OTDLoaded ? "Running" : "Library not running");
+	#else
+	PrintToServer("SM-TFOnTakeDamage: Compiled without include \"tf_ontakedamage\"");
+	#endif
+}
+
 void SDKHook_PluginStart()
 {
 	OTDLoaded = LibraryExists(OTD_LIBRARY);

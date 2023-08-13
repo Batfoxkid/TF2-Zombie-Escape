@@ -15,7 +15,7 @@ Required:
 
 Recommended:
 
-- [File Network](https://github.com/Batfoxkid/File-Network)
+- [File Network](https://forums.alliedmods.net/showthread.php?t=341953)
 - [TFEconData](https://github.com/nosoop/SM-TFEconData)
 - [TFOnTakeDamage](https://github.com/nosoop/SM-TFOnTakeDamage)
 
@@ -23,7 +23,6 @@ Supported:
 
 - [SteamWorks](https://github.com/ExperimentFailed/SteamWorks)
 - [TFCustAttr](https://github.com/nosoop/SM-TFCustAttr)
-- [SM-TFUtils 0.19.0.2+](https://github.com/nosoop/SM-TFUtils)
 - [SM-TFCustomWeaponsX](https://github.com/nosoop/SM-TFCustomWeaponsX)
 
 ## Credits

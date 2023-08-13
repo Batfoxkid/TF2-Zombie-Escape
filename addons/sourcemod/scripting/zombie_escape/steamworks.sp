@@ -25,6 +25,15 @@
 static bool Loaded;
 #endif
 
+void SteamWorks_PluginStatus()
+{
+	#if defined __tf_econ_data_included
+	PrintToServer("SteamWorks: %s", Loaded ? "Running" : "Library not running");
+	#else
+	PrintToServer("SteamWorks: Compiled without include \"SteamWorks\"");
+	#endif
+}
+
 void SteamWorks_PluginStart()
 {
 	#if defined _SteamWorks_Included

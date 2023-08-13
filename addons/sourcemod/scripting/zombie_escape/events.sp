@@ -86,6 +86,7 @@ public Action Events_BroadcastAudio(Event event, const char[] name, bool dontBro
 public void Events_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	Gamemode_RoundEnd();
+	Music_RoundEnd(event.GetInt("team"), event.GetBool("full_round"));
 }
 
 public void Events_RoundStart(Event event, const char[] name, bool dontBroadcast)

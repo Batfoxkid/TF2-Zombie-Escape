@@ -22,6 +22,58 @@
 	{
 		"en"		"Music Settings (/zemusic)"
 	}
+
+	"Music Menu Normal"
+	{
+		"en"		"Zombie Escape Music Settings\n "
+	}
+	"Music Menu Disabled"
+	{
+		"en"		"Zombie Escape Music Settings\n \nDownloads Disabled\n "
+	}
+	"Music Disable"
+	{
+		"en"		"No Dynamic Music"
+	}
+	"Music Riot"
+	{
+		"en"		"TF2: Zombie Riot"
+	}
+	"Music Fortress"
+	{
+		"en"		"Super Zombie Fortress"
+	}
+	"Music Selected"
+	{
+		"en"		"[Selected]"
+	}
+	"Music Downloading"
+	{
+		"#format"	"{1:.2f}"
+		"en"		"[Downloading {1}%]"
+	}
+	"Music Unknown Arg"
+	{
+		"#format"	"{1:s}"
+		"en"		"Unknown argument '{1}'\nArguments Available: 'off', 'riot', 'super'"
+	}
+	"Music Turned Off"
+	{
+		"en"		"Disabled dynamic music"
+	}
+	"Music Set"
+	{
+		"#format"	"{1:t}"
+		"en"		"Selected '{1}' dynamic music"
+	}
+	"Music Is Downloading"
+	{
+		"en"		"This dynamic music is still downloading, progress is saved between map and server changes"
+	}
+	"Music Is Disabled"
+	{
+		"en"		"Downloads are disabled, this could be your download settings or the server having issues"
+	}
 	
 	"Weapon Menu"
 	{

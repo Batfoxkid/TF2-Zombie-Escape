@@ -45,11 +45,12 @@ void Gamemode_RoundSetup()
 			ClearSyncHud(client, GameHud);
 			ClearSyncHud(client, PlayerHud);
 
-			DHook_AllowSwap();
 			ChangeClientTeam(client, TFTeam_Human);
 			TF2_RespawnPlayer(client);
 		}
 	}
+
+	Music_RoundSetup();
 }
 
 void Gamemode_RoundStart()
@@ -270,7 +271,6 @@ void Gamemode_PlayerDeath(int client, int userid, int attacker)
 			}
 		}
 
-		DHook_AllowSwap();
 		ChangeClientTeam(client, TFTeam_Zombie);
 
 		Gamemode_ClientDisconnect(client);
@@ -409,7 +409,7 @@ public void Gamemode_SpawnFrame(DataPack pack)
 		}
 
 		TeleportEntity(client, pos, ang);
-		TF2_StunPlayer(client, 5.0, 0.8, TF_STUNFLAGS_LOSERSTATE);
+		Gamemode_TakeDamage(client, 300.0, DMG_CRIT);
 	}
 
 	delete pack;

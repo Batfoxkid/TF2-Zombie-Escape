@@ -121,7 +121,6 @@ static Action SwapTeam(int client, int wantTeam)
 	
 	ForcePlayerSuicide(client);
 
-	DHook_AllowSwap();
 	ChangeClientTeam(client, newTeam);
 	if(newTeam > TFTeam_Spectator)
 		ShowVGUIPanel(client, newTeam == TFTeam_Red ? "class_red" : "class_blue");

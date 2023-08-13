@@ -24,6 +24,14 @@ static Handle SDKTeamRemovePlayer;
 static Handle SDKCheckBlockBackstab;
 static Handle SDKSetSpeed;
 
+static int FailWarning;
+static int FailCritical;
+
+void SDKCall_PluginStatus()
+{
+	PrintToServer("SDKCalls: %d warnings, %d errors", FailWarning, FailCritical);
+}
+
 void SDKCall_Setup()
 {
 	GameData gamedata = new GameData("sm-tf2.games");
@@ -33,7 +41,10 @@ void SDKCall_Setup()
 	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
 	SDKEquipWearable = EndPrepSDKCall();
 	if(!SDKEquipWearable)
+	{
 		LogError("[Gamedata] Could not find RemoveWearable");
+		FailCritical++;
+	}
 	
 	delete gamedata;
 	
@@ -45,7 +56,10 @@ void SDKCall_Setup()
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_ByValue);
 	SDKGetMaxHealth = EndPrepSDKCall();
 	if(!SDKGetMaxHealth)
+	{
 		LogError("[Gamedata] Could not find GetMaxHealth");
+		FailWarning++;
+	}
 	
 	delete gamedata;
 	
@@ -57,14 +71,20 @@ void SDKCall_Setup()
 	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
 	SDKTeamAddPlayer = EndPrepSDKCall();
 	if(!SDKTeamAddPlayer)
+	{
 		LogError("[Gamedata] Could not find CTeam::AddPlayer");
+		FailWarning++;
+	}
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CTeam::RemovePlayer");
 	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
 	SDKTeamRemovePlayer = EndPrepSDKCall();
 	if(!SDKTeamRemovePlayer)
+	{
 		LogError("[Gamedata] Could not find CTeam::RemovePlayer");
+		FailWarning++;
+	}
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayer::CheckBlockBackstab");
@@ -72,13 +92,19 @@ void SDKCall_Setup()
 	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_ByValue);
 	SDKCheckBlockBackstab = EndPrepSDKCall();
 	if(!SDKCheckBlockBackstab)
+	{
 		LogError("[Gamedata] Could not find CTFPlayer::CheckBlockBackstab");
+		FailCritical++;
+	}
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTFPlayer::TeamFortress_SetSpeed");
 	SDKSetSpeed = EndPrepSDKCall();
 	if(!SDKSetSpeed)
+	{
 		LogError("[Gamedata] Could not find CTFPlayer::TeamFortress_SetSpeed");
+		FailWarning++;
+	}
 	
 	delete gamedata;
 }
@@ -122,14 +148,10 @@ void SDKCall_SetSpeed(int client)
 
 void SDKCall_ChangeClientTeam(int client, int newTeam)
 {
-	if(newTeam <= TFTeam_Spectator)
-		ThrowError("HEY!");
-	
 	int clientTeam = GetEntProp(client, Prop_Send, "m_iTeamNum");
 	if(newTeam == clientTeam)
 		return;
 	
-	DHook_AllowSwap();
 	if(SDKTeamAddPlayer && SDKTeamRemovePlayer)
 	{
 		int entity = MaxClients+1;

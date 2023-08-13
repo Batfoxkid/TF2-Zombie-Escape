@@ -408,7 +408,7 @@ stock void Debug(const char[] buffer, any ...)
 	{
 		char message[192];
 		VFormat(message, sizeof(message), buffer, 2);
-		CPrintToChatAll("{olive}[ZE {darkorange}DEBUG{olive}]{default} %s", message);
+		CPrintToChatAll("{blue}[ZE {darkorange}DEBUG{blue}]{default} %s", message);
 		PrintToServer("[ZE DEBUG] %s", message);
 	}
 }

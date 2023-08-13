@@ -22,7 +22,21 @@
 
 static Database DataBase;
 static bool Cached[MAXTF2PLAYERS];
-static float StartTime[MAXTF2PLAYERS];
+static int StartTime[MAXTF2PLAYERS];
+
+void DataBase_PluginStatus()
+{
+	if(DataBase)
+	{
+		char buffer[64];
+		DataBase.Driver.GetIdentifier(buffer, sizeof(buffer));
+		PrintToServer("Database: Running %s", buffer);
+	}
+	else
+	{
+		PrintToServer("Database: Failed, see error logs for message");
+	}
+}
 
 void Database_PluginStart()
 {
@@ -86,7 +100,7 @@ void Database_ClientPostAdminCheck(int client)
 		int id = GetSteamAccountID(client);
 		if(id)
 		{
-			StartTime[client] = GetEngineTime();
+			StartTime[client] = GetTime();
 			
 			Transaction tr = new Transaction();
 			
@@ -123,12 +137,14 @@ public void Database_ClientSetup(Database db, int userid, int numQueries, DBResu
 		{
 			DataBase.Execute(tr, Database_Success, Database_Fail);
 		}
-		else if(IsClientInGame(client) && StartTime[client] > (GetEngineTime() + 200.0))	// Slow databases, notify the player
+		else if(IsClientInGame(client) && StartTime[client] > (GetTime() + 200))	// Slow databases, notify the player
 		{
 			ZPrintToChat(client, "%t", "Preference Updated");
 		}
 		
 		Cached[client] = true;
+
+		Music_ClientCached(client);
 	}
 }
 

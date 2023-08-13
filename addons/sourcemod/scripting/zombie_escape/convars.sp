@@ -39,11 +39,6 @@ void ConVar_PluginStart()
 	AutoExecConfig(false, "ZombieEscape");
 	
 	Cvar[AllowSpectators] = FindConVar("mp_allowspectators");
-	Cvar[MovementFreeze] = FindConVar("tf_player_movement_restart_freeze");
-	Cvar[PreroundTime] = FindConVar("tf_arena_preround_time");
-	//Cvar[BonusRoundTime] = FindConVar("mp_bonusroundtime");
-	Cvar[Tournament] = FindConVar("mp_tournament");
-	Cvar[WaitingTime] = FindConVar("mp_waitingforplayers_time");
 	
 	CvarList = new ArrayList(sizeof(CvarInfo));
 	
@@ -131,7 +126,7 @@ static void GenerateConfig()
 			file.WriteLine(NULL_STRING);
 		}
 		
-		delete file;
+		file.Close();
 	}
 }
 
@@ -221,7 +216,6 @@ void ConVar_Enable()
 			info.cvar.AddChangeHook(ConVar_OnChanged);
 		}
 
-		Cvar[Tournament].Flags &= ~(FCVAR_NOTIFY|FCVAR_REPLICATED);
 		CvarHooked = true;
 	}
 }
@@ -240,7 +234,6 @@ void ConVar_Disable()
 			info.cvar.SetString(info.defaul);
 		}
 
-		Cvar[Tournament].Flags |= (FCVAR_NOTIFY|FCVAR_REPLICATED);
 		CvarHooked = false;
 	}
 }

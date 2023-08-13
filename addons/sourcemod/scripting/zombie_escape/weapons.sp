@@ -34,6 +34,21 @@ static bool TCALoaded;
 
 static KeyValues WeaponKv;
 
+void Weapons_PluginStatus()
+{
+	#if defined __tf_econ_data_included
+	PrintToServer("SM-TFCustomWeaponsX: %s", CWXLoaded ? "Running" : "Library not running");
+	#else
+	PrintToServer("SM-TFCustomWeaponsX: Compiled without include \"cwx\"");
+	#endif
+
+	#if defined __tf_custom_attributes_included
+	PrintToServer("SM-TFCustAttr: %s", TCALoaded ? "Running" : "Library not running");
+	#else
+	PrintToServer("SM-TFCustAttr: Compiled without include \"tf2custattr\"");
+	#endif
+}
+
 void Weapons_PluginLoad()
 {
 	#if defined __tf_custom_attributes_included

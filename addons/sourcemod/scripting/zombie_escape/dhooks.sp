@@ -24,7 +24,6 @@ enum struct RawHooks
 	int Post;
 }
 
-static DynamicHook ChangeTeam;
 static DynamicHook ForceRespawn;
 static DynamicHook RoundRespawn;
 static DynamicHook ApplyOnInjured;
@@ -34,12 +33,17 @@ static ArrayList RawEntityHooks;
 static int DamageTypeOffset = -1;
 static int EconViewAttribsOffset;
 static int EconItemOffset;
+static int FailWarning;
+static int FailCritical;
 
-static int ChangeTeamPreHook[MAXTF2PLAYERS];
 static int ForceRespawnPreHook[MAXTF2PLAYERS];
 static int ReturningTeam = -1;
 static int KnifeWasChanged = -1;
-static bool AllowChangeTeam;
+
+void DHook_PluginStatus()
+{
+	PrintToServer("DHooks: %d warnings, %d errors", FailWarning, FailCritical);
+}
 
 void DHook_Setup()
 {
@@ -49,50 +53,102 @@ void DHook_Setup()
 	if(DamageTypeOffset == -1)
 		LogError("[Gamedata] Could not find m_bitsDamageType");
 	
-	CreateDetour(gamedata, "CTFPlayer::CanPickupDroppedWeapon", DHook_CanPickupDroppedWeaponPre);
-	CreateDetour(gamedata, "CTFPlayer::DropAmmoPack", DHook_DropAmmoPackPre);
-	CreateDetour(gamedata, "CTFPlayer::RegenThink", DHook_RegenThinkPre, DHook_RegenThinkPost);
-	CreateDetour(gamedata, "CTFWeaponBaseMelee::DoSwingTraceInternal", DHook_DoSwingTracePre, DHook_DoSwingTracePost);
+	CreateDetour(gamedata, "CTFPlayer::CanPickupDroppedWeapon", true, DHook_CanPickupDroppedWeaponPre);
+	CreateDetour(gamedata, "CTFPlayer::DropAmmoPack", true, DHook_DropAmmoPackPre);
+	CreateDetour(gamedata, "CTFPlayer::RegenThink", false, DHook_RegenThinkPre, DHook_RegenThinkPost);
+	CreateDetour(gamedata, "CTFWeaponBaseMelee::DoSwingTraceInternal", false, DHook_DoSwingTracePre, DHook_DoSwingTracePost);
 	
-	ChangeTeam = CreateHook(gamedata, "CBaseEntity::ChangeTeam");
-	ForceRespawn = CreateHook(gamedata, "CBasePlayer::ForceRespawn");
-	HookItemIterateAttribute = CreateHook(gamedata, "CEconItemView::IterateAttributes");
-	RoundRespawn = CreateHook(gamedata, "CTeamplayRoundBasedRules::RoundRespawn");
-	ApplyOnInjured = CreateHook(gamedata, "CTFWeaponBase::ApplyOnInjuredAttributes");
+	ForceRespawn = CreateHook(gamedata, "CBasePlayer::ForceRespawn", true);
+	HookItemIterateAttribute = CreateHook(gamedata, "CEconItemView::IterateAttributes", true);
+	RoundRespawn = CreateHook(gamedata, "CTeamplayRoundBasedRules::RoundRespawn", false);
+	ApplyOnInjured = CreateHook(gamedata, "CTFWeaponBase::ApplyOnInjuredAttributes", false);
+	
+	delete gamedata;
 
 	EconItemOffset = FindSendPropInfo("CEconEntity", "EconItemOffset");
 	FindSendPropInfo("CEconEntity", "EconViewAttribsOffset", _, _, EconViewAttribsOffset);
-	
-	delete gamedata;
+
+	if(EconItemOffset < 1)
+	{
+		FailCritical++;
+		LogError("[Gamedata] Could not find CEconEntity::EconItemOffset");
+	}
+	else if(EconViewAttribsOffset < 1)
+	{
+		FailCritical++;
+		LogError("[Gamedata] Could not find CEconEntity::EconViewAttribsOffset");
+	}
 	
 	RawEntityHooks = new ArrayList(sizeof(RawHooks));
 }
 
-static DynamicHook CreateHook(GameData gamedata, const char[] name)
+static DynamicHook CreateHook(GameData gamedata, const char[] name, bool critical)
 {
 	DynamicHook hook = DynamicHook.FromConf(gamedata, name);
 	if(!hook)
+	{
 		LogError("[Gamedata] Could not find %s", name);
+
+		if(critical)
+		{
+			FailCritical++;
+		}
+		else
+		{
+			FailWarning++;
+		}
+	}
 	
 	return hook;
 }
 
-static void CreateDetour(GameData gamedata, const char[] name, DHookCallback preCallback = INVALID_FUNCTION, DHookCallback postCallback = INVALID_FUNCTION)
+static void CreateDetour(GameData gamedata, const char[] name, bool critical, DHookCallback preCallback = INVALID_FUNCTION, DHookCallback postCallback = INVALID_FUNCTION)
 {
 	DynamicDetour detour = DynamicDetour.FromConf(gamedata, name);
 	if(detour)
 	{
 		if(preCallback != INVALID_FUNCTION && !detour.Enable(Hook_Pre, preCallback))
+		{
 			LogError("[Gamedata] Failed to enable pre detour: %s", name);
+
+			if(critical)
+			{
+				FailCritical++;
+			}
+			else
+			{
+				FailWarning++;
+			}
+		}
 		
 		if(postCallback != INVALID_FUNCTION && !detour.Enable(Hook_Post, postCallback))
+		{
 			LogError("[Gamedata] Failed to enable post detour: %s", name);
+
+			if(critical)
+			{
+				FailCritical++;
+			}
+			else
+			{
+				FailWarning++;
+			}
+		}
 		
 		delete detour;
 	}
 	else
 	{
 		LogError("[Gamedata] Could not find %s", name);
+
+		if(critical)
+		{
+			FailCritical++;
+		}
+		else
+		{
+			FailWarning++;
+		}
 	}
 }
 
@@ -106,9 +162,6 @@ void DHook_HookClient(int client)
 {
 	if(ForceRespawn)
 		ForceRespawnPreHook[client] = ForceRespawn.HookEntity(Hook_Pre, client, DHook_ForceRespawnPre);
-	
-	if(ChangeTeam)
-		ChangeTeamPreHook[client] = ChangeTeam.HookEntity(Hook_Pre, client, DHook_ChangeTeamPre);
 }
 
 void DHook_EntityCreated(int entity, const char[] classname)
@@ -178,9 +231,6 @@ void DHook_UnhookClient(int client)
 {
 	if(ForceRespawn)
 		DynamicHook.RemoveHook(ForceRespawnPreHook[client]);
-	
-	if(ChangeTeam)
-		DynamicHook.RemoveHook(ChangeTeamPreHook[client]);
 }
 
 public void DHook_RoundSetup(Event event, const char[] name, bool dontBroadcast)
@@ -280,28 +330,6 @@ public MRESReturn DHook_DoSwingTracePost(int entity, DHookReturn ret, DHookParam
 		ReturningTeam = -1;
 	}
 	return MRES_Ignored;
-}
-
-void DHook_AllowSwap()
-{
-	AllowChangeTeam = false;
-}
-
-public MRESReturn DHook_ChangeTeamPre(int client, DHookParam param)
-{
-	//if(AllowChangeTeam)
-	//{
-	//	AllowChangeTeam = false;
-	//	return MRES_Ignored;
-	//}
-
-	int team = param.Get(1);
-	Debug("Moved %d team on %N", team, client);
-
-	//if(team <= TFTeam_Spectator)	// Always allow spectator so AFK plugins can work
-	return MRES_Ignored;
-	
-	//return MRES_Supercede;
 }
 
 public MRESReturn DHook_ForceRespawnPre(int client)

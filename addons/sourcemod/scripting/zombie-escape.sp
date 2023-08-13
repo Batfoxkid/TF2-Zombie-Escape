@@ -57,11 +57,6 @@ enum
 	ZombieUpward,
 	
 	AllowSpectators,
-	MovementFreeze,
-	PreroundTime,
-	//BonusRoundTime,
-	Tournament,
-	WaitingTime,
 	
 	Cvar_MAX
 }
@@ -78,8 +73,10 @@ ConVar Cvar[Cvar_MAX];
 #include "zombie_escape/dhooks.sp"
 #include "zombie_escape/econdata.sp"
 #include "zombie_escape/events.sp"
+#include "zombie_escape/filenetwork.sp"
 #include "zombie_escape/gamemode.sp"
 #include "zombie_escape/menu.sp"
+#include "zombie_escape/music.sp"
 #include "zombie_escape/sdkcalls.sp"
 #include "zombie_escape/sdkhooks.sp"
 #include "zombie_escape/steamworks.sp"
@@ -114,9 +111,10 @@ public void OnPluginStart()
 	Database_PluginStart();
 	DHook_Setup();
 	Events_PluginStart();
+	FileNet_PluginStart();
 	Gamemode_PluginStart();
 	Menu_PluginStart();
-	//Music_PluginStart();
+	Music_PluginStart();
 	SDKCall_Setup();
 	SDKHook_PluginStart();
 	SteamWorks_PluginStart();
@@ -133,6 +131,7 @@ public void OnPluginStart()
 public void OnMapStart()
 {
 	DHook_MapStart();
+	Music_MapStart();
 }
 
 public void OnConfigsExecuted()
@@ -141,16 +140,22 @@ public void OnConfigsExecuted()
 	Weapons_ConfigsExecuted();
 }
 
+public void OnMapEnd()
+{
+	FileNet_MapEnd();
+}
+
 public void OnPluginEnd()
 {
 	ConVar_Disable();
 	Database_PluginEnd();
 	DHook_PluginEnd();
-	//Music_PlaySongToAll();
+	Music_PluginEnd();
 }
 
 public void OnLibraryAdded(const char[] name)
 {
+	FileNet_LibraryAdded(name);
 	SDKHook_LibraryAdded(name);
 	SteamWorks_LibraryAdded(name);
 	TFED_LibraryAdded(name);
@@ -159,6 +164,7 @@ public void OnLibraryAdded(const char[] name)
 
 public void OnLibraryRemoved(const char[] name)
 {
+	FileNet_LibraryRemoved(name);
 	SDKHook_LibraryRemoved(name);
 	SteamWorks_LibraryRemoved(name);
 	TFED_LibraryRemoved(name);
@@ -168,6 +174,7 @@ public void OnLibraryRemoved(const char[] name)
 public void OnClientPutInServer(int client)
 {
 	DHook_HookClient(client);
+	FileNet_ClientPutInServer(client);
 	SDKHook_HookClient(client);
 }
 
@@ -186,6 +193,6 @@ public void OnClientDisconnect(int client)
 
 public Action OnPlayerRunCmd(int client, int &buttons)
 {
-	//Music_PlayerRunCmd(client);
+	Music_PlayerRunCmd(client);
 	return Plugin_Continue;
 }
