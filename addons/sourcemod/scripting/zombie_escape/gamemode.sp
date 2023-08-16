@@ -18,7 +18,7 @@
 #pragma newdecls required
 
 #define SKIN_ZOMBIE		4
-#define SKIN_ZOMBIE_SPY	SKIN_ZOMBIE + 17
+#define SKIN_ZOMBIE_SPY	SKIN_ZOMBIE + 19
 
 static Handle GameHud;
 static Handle PlayerHud;
@@ -252,27 +252,31 @@ void Gamemode_PlayerDeath(int client, int userid, int attacker)
 {
 	Debug("Gamemode_PlayerDeath::%N::%d", client, attacker);
 
-	if(!LastMann && Client(client).Human && !GameRules_GetProp("m_bInSetup"))
+	if(Client(client).Human && !GameRules_GetProp("m_bInSetup"))
 	{
-		if(attacker > 0 && attacker <= MaxClients && Client(attacker).Zombie)
+		if(!LastMann)
 		{
-			float pos[3], ang[3];
-			GetClientAbsOrigin(client, pos);
-			GetClientEyeAngles(client, ang);
-
-			DataPack pack = new DataPack();
-			RequestFrame(Gamemode_PlayerDeathFrame, pack);
-			pack.WriteCell(userid);
-			
-			for(int i; i < 3; i++)
+			if(attacker > 0 && attacker <= MaxClients && Client(attacker).Zombie)
 			{
-				pack.WriteFloat(pos[i]);
-				pack.WriteFloat(ang[i]);
+				float pos[3], ang[3];
+				GetClientAbsOrigin(client, pos);
+				GetClientEyeAngles(client, ang);
+
+				DataPack pack = new DataPack();
+				RequestFrame(Gamemode_PlayerDeathFrame, pack);
+				pack.WriteCell(userid);
+				
+				for(int i; i < 3; i++)
+				{
+					pack.WriteFloat(pos[i]);
+					pack.WriteFloat(ang[i]);
+				}
 			}
+
+			ChangeClientTeam(client, TFTeam_Zombie);
 		}
 
-		ChangeClientTeam(client, TFTeam_Zombie);
-
+		Music_PlayerDeath(client);
 		Gamemode_ClientDisconnect(client);
 	}
 }
@@ -329,9 +333,11 @@ void Gamemode_ClientDisconnect(int client)
 		{
 			if(!LastMann)
 			{
+				LastMann = true;
 				SetEntityHealth(found, GetClientHealth(found) + 585);
 				TF2_AddCondition(found, TFCond_Buffed);
 				TF2_AddCondition(found, TFCond_UberchargedCanteen, 2.0);
+				Music_ForceNextSong();
 			}
 		}
 		else
@@ -349,12 +355,12 @@ void Gamemode_ClientDisconnect(int client)
 
 bool Gamemode_ForceRespawn(int client)
 {
-	if(GetClientTeam(client) == TFTeam_Zombie)
+	if(GetClientTeam(client) == TFTeam_Zombie && !IsPlayerAlive(client))
 	{
 		float pos[3], ang[3];
 
 		int target = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
-		if(target > 0 && target <= MaxClients && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target) && Client(target).Cripple > 0.0)
+		if(target > 0 && target <= MaxClients && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target) && Client(target).Cripple < 1.0)
 		{
 			GetClientAbsOrigin(target, pos);
 			GetClientEyeAngles(target, ang);
@@ -364,7 +370,7 @@ bool Gamemode_ForceRespawn(int client)
 		{
 			for(target = 1; target <= MaxClients; target++)
 			{
-				if(IsClientInGame(target) && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target) && Client(target).Cripple > 0.0)
+				if(client != target && IsClientInGame(target) && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target) && Client(target).Cripple < 1.0)
 				{
 					GetClientAbsOrigin(target, pos);
 					GetClientEyeAngles(target, ang);
@@ -388,8 +394,6 @@ bool Gamemode_ForceRespawn(int client)
 			pack.WriteFloat(pos[i]);
 			pack.WriteFloat(ang[i]);
 		}
-
-		return false;
 	}
 	return false;
 }

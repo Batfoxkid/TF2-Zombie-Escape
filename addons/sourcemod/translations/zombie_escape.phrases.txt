@@ -37,7 +37,7 @@
 	}
 	"Music Riot"
 	{
-		"en"		"TF2: Zombie Riot"
+		"en"		"GMod: Zombie Survival / TF2: Zombie Riot"
 	}
 	"Music Fortress"
 	{
@@ -49,8 +49,8 @@
 	}
 	"Music Downloading"
 	{
-		"#format"	"{1:.2f}"
-		"en"		"[Downloading {1}%]"
+		"#format"	"{1:.0f}"
+		"en"		"[Downloading - {1}%%]"
 	}
 	"Music Unknown Arg"
 	{

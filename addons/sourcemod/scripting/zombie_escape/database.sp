@@ -143,8 +143,6 @@ public void Database_ClientSetup(Database db, int userid, int numQueries, DBResu
 		}
 		
 		Cached[client] = true;
-
-		Music_ClientCached(client);
 	}
 }
 

@@ -19,7 +19,7 @@
 
 #define NO_MUSIC_TIME	-999999
 
-#define DRUM_FILE	"#szf/music/zombat/horde/drums%s.mp3"
+#define DRUM_FILE	"#szf/music/zembat/horde/drums%s.mp3"
 static const char DrumSuffix[][] =
 {
 	"01b",
@@ -53,7 +53,7 @@ static const char DrumSuffix[][] =
 	"11d"
 };
 
-#define VIOLIN_FILE	"#szf/music/zombat/slayer/fiddle/violin_slayer_%s.mp3"
+#define VIOLIN_FILE	"#szf/music/zembat/slayer/fiddle/violin_slayer_%s.mp3"
 static const char ViolinSuffix[][] =
 {
 	"01_01a",
@@ -67,7 +67,7 @@ static const char ViolinSuffix[][] =
 	"02_01e"
 };
 
-#define BANJO_FILE	"#szf/music/zombat/danger/banjo/banjo_%s.mp3"
+#define BANJO_FILE	"#szf/music/zembat/danger/banjo/banjo_%s.mp3"
 static const char BanjoSuffix[][] =
 {
 	"01a_01",
@@ -94,7 +94,7 @@ static const char BanjoSuffix[][] =
 	"02_15"
 };
 
-#define TRUMPET_FILE	"#szf/music/zombat/danger/trumpet/trumpet_danger_02_%02d.mp3"
+#define TRUMPET_FILE	"#szf/music/zembat/danger/trumpet/trumpet_danger_02_%02d.mp3"
 
 enum
 {
@@ -162,9 +162,9 @@ void Music_MapStart()
 		FileNet_PrecacheSound(buffer);
 	}
 
-	FileNet_PrecacheSound("#szf/music/zombat/slayer/lectric/slayer_01a.mp3");
-	FileNet_PrecacheSound("#szf/music/zombat/snare_horde_01_01a.mp3");
-	FileNet_PrecacheSound("#szf/music/zombat/snare_horde_01_01b.mp3");
+	FileNet_PrecacheSound("#szf/music/zembat/slayer/lectric/slayer_01a.mp3");
+	FileNet_PrecacheSound("#szf/music/zembat/snare_horde_01_01a.mp3");
+	FileNet_PrecacheSound("#szf/music/zembat/snare_horde_01_01b.mp3");
 	FileNet_PrecacheSound("#szf/music/contagion/l4d2_rabies_01.mp3");
 	FileNet_PrecacheSound("#szf/music/contagion/l4d2_rabies_02.mp3");
 	FileNet_PrecacheSound("#szf/music/contagion/l4d2_rabies_03.mp3");
@@ -198,18 +198,12 @@ void Music_PluginEnd()
 	}
 }
 
-void Music_ClientCached(int client)
-{
-	if(NextThemeAt[client] == NO_MUSIC_TIME)
-		NextThemeAt[client] = 0;
-}
-
 void Music_RoundSetup()
 {
 	if(NewFullRound)
 		RoundRNG = GetURandomInt();
 	
-	Music_ForceNextSong(true);
+	Music_ForceNextSong(1);
 }
 
 // Note: Must be below Gamemode_RoundEnd()
@@ -223,6 +217,17 @@ void Music_PlayerRunCmd(int client)
 {
 	if(NextThemeAt[client] != NO_MUSIC_TIME && NextThemeAt[client] <= GetTime())
 		Music_PlayNextSong(client);
+}
+
+void Music_PlayerDeath(int client)
+{
+	if(!Gamemode_InLastman())
+	{
+		StopMusic(client);
+
+		if(Client(client).MusicType == Theme_ZombieFortress && Client(client).SoundLevel > MusicLevelZombieFortress)
+			PlayMusic(client, "#szf/music/terror/theend.mp3", 1);
+	}
 }
 
 void Music_ForceNextSong(int type = 0)
@@ -312,11 +317,15 @@ void Music_PlayNextSong(int client)
 		{
 			if(Client(client).SoundLevel <= MusicLevelZombieRiot)
 			{
-				NextThemeAt[client] = GetTime() + 20;
+				NextThemeAt[client] = GetTime() + 10;
 			}
 			else if(Gamemode_InLastman())
 			{
 				PlayMusic(client, "#zombiesurvival/lasthuman.mp3", 120);
+			}
+			else if(!IsPlayerAlive(client))
+			{
+				NextThemeAt[client] = GetTime() + 5;
 			}
 			else if(AreHumansLosing())
 			{
@@ -419,14 +428,14 @@ void Music_PlayNextSong(int client)
 		{
 			if(Client(client).SoundLevel <= MusicLevelZombieFortress)
 			{
-				NextThemeAt[client] = GetTime() + 20;
+				NextThemeAt[client] = GetTime() + 10;
 			}
 			else if(Gamemode_InLastman())
 			{
 				StopRabies(client);
 				PlayMusic(client, "#szf/music/the_end/skinonourteeth.mp3", 96);
 			}
-			else
+			else if(IsPlayerAlive(client))
 			{
 				TFClassType class;
 				if(InCloseCombat(client, class))
@@ -446,7 +455,7 @@ void Music_PlayNextSong(int client)
 							}
 							else
 							{
-								FormatEx(buffer, sizeof(buffer), TRUMPET_FILE, 1 + (GetURandomInt() % 16));
+								FormatEx(buffer, sizeof(buffer), TRUMPET_FILE, 1 + (GetURandomInt() % 15));
 								PlayMusic(client, buffer, 1);
 							}
 						}
@@ -455,11 +464,11 @@ void Music_PlayNextSong(int client)
 							if(AreHumansLosing())
 							{
 								FormatEx(buffer, sizeof(buffer), VIOLIN_FILE, ViolinSuffix[GetURandomInt() % sizeof(ViolinSuffix)]);
-								PlayMusic(client, buffer, 6);
+								PlayMusic(client, buffer, 3);
 							}
 							else
 							{
-								PlayMusic(client, "#szf/music/zombat/slayer/lectric/slayer_01a.mp3", 6);
+								PlayMusic(client, "#szf/music/zembat/slayer/lectric/slayer_01a.mp3", 6);
 							}
 						}
 						default:
@@ -471,11 +480,11 @@ void Music_PlayNextSong(int client)
 							}
 							else if(GetURandomInt() % 2)
 							{
-								PlayMusic(client, "#szf/music/zombat/snare_horde_01_01a.mp3", 6);
+								PlayMusic(client, "#szf/music/zembat/snare_horde_01_01a.mp3", 6);
 							}
 							else
 							{
-								PlayMusic(client, "#szf/music/zombat/snare_horde_01_01b.mp3", 6);
+								PlayMusic(client, "#szf/music/zembat/snare_horde_01_01b.mp3", 6);
 							}
 						}
 					}
@@ -504,10 +513,14 @@ void Music_PlayNextSong(int client)
 					NextThemeAt[client] = time + 1;
 				}
 			}
+			else
+			{
+				NextThemeAt[client] = GetTime() + 5;
+			}
 		}
 		default:
 		{
-			NextThemeAt[client] = NO_MUSIC_TIME;
+			NextThemeAt[client] = GetTime() + 10;
 		}
 	}
 }
@@ -516,14 +529,14 @@ static void PlayMusic(int client, const char[] sound, int time)
 {
 	strcopy(CurrentTheme[client], sizeof(CurrentTheme[]), sound);
 	EmitSoundToClient(client, CurrentTheme[client], _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-	NextThemeAt[client] = GetTime() + time;
+	NextThemeAt[client] = time == NO_MUSIC_TIME ? NO_MUSIC_TIME : (GetTime() + time);
 }
 
 static void PlayRabies(int client, const char[] sound, int time)
 {
 	strcopy(CurrentTheme[client], sizeof(CurrentTheme[]), sound);
 	EmitSoundToClient(client, CurrentTheme[client], _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-	NextRabiesAt[client] = GetTime() + time;
+	NextRabiesAt[client] = time == NO_MUSIC_TIME ? NO_MUSIC_TIME : (GetTime() + time);
 }
 
 static void StopMusic(int client)
@@ -552,11 +565,10 @@ static int GetIntensity(int client)
 
 	float pos1[3], pos2[3];
 	GetClientEyePosition(client, pos1);
-	int team = GetClientTeam(client);
 
 	for(int target = 1; target <= MaxClients; target++)
 	{
-		if(IsClientInGame(target) && GetClientTeam(target) != team && IsPlayerAlive(target))
+		if(target != client && IsClientInGame(target) && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target))
 		{
 			GetClientAbsOrigin(target, pos2);
 

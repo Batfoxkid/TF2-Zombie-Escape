@@ -81,12 +81,15 @@ void FileNet_MapEnd()
 
 void FileNet_ClientPutInServer(int client)
 {
-	#if defined _filenetwork_included
-	FileNet_ClientDisconnect(client);
-	SendNextFile(client);
-	#else
-	QueryClientConVar(client, "cl_allowdownload", FileNet_QueryAllowDownload);
-	#endif
+	if(!IsFakeClient(client))
+	{
+		#if defined _filenetwork_included
+		FileNet_ClientDisconnect(client);
+		SendNextFile(client);
+		#else
+		QueryClientConVar(client, "cl_allowdownload", FileNet_QueryAllowDownload);
+		#endif
+	}
 }
 
 stock void FileNet_ClientDisconnect(int client)
