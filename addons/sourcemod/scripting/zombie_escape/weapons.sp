@@ -251,7 +251,6 @@ void Weapons_ShowChanges(int client, int entity)
 
 	SetGlobalTransTarget(client);
 	
-	bool found;
 	char buffer2[64];
 	
 	if(WeaponKv.GetNum("strip"))
@@ -271,62 +270,51 @@ void Weapons_ShowChanges(int client, int entity)
 	char description[64];
 	char type[32];
 
-	int current = 0;
-
-	char attributes[512];
-	WeaponKv.GetString("attributes", attributes, sizeof(attributes));
-
-	do
+	if(WeaponKv.JumpToKey("attributes"))
 	{
-		int add = SplitString(attributes[current], ";", value, sizeof(value));
-		if(add == -1)
-			break;
-		
-		int attrib = StringToInt(value);
-		if(!attrib)
-			break;
-		
-		current += add;
-		add = SplitString(attributes[current], ";", value, sizeof(value));
-		found = add != -1;
-
-		if(found)
+		if(WeaponKv.GotoFirstSubKey(false))
 		{
-			current += add;
-		}
-		else
-		{
-			strcopy(value, sizeof(value), attributes[current]);
-		}
-
-		bool isHidden = (TF2ED_GetAttributeDefinitionString(attrib, "hidden", type, sizeof(type)) && StringToInt(type));
-		bool doesDescriptionExist = TF2ED_GetAttributeDefinitionString(attrib, "description_string", description, sizeof(description));
-
-		if(value[0] != 'R' && !isHidden && doesDescriptionExist)
-		{
-			TF2ED_GetAttributeDefinitionString(attrib, "description_format", type, sizeof(type));
-			FormatValue(value, value, sizeof(value), type);
-			PrintSayText2(client, client, true, description, value);
-		}
-	}
-	while(found);
-
-	if(WeaponKv.JumpToKey("custom") && WeaponKv.GotoFirstSubKey(false))
-	{
-		char key[64], data[256];
-		do
-		{
-			WeaponKv.GetSectionName(key, sizeof(key));
-			if(TranslationPhraseExists(key))
+			do
 			{
-				WeaponKv.GetString(NULL_STRING, data, sizeof(data));
-				FormatValue(data, value, sizeof(value), "value_is_percentage");
-				FormatValue(data, description, sizeof(description), "value_is_inverted_percentage");
-				FormatValue(data, type, sizeof(type), "value_is_additive_percentage");
-				PrintToChat(client, "%t", key, value, description, type, data);
+				WeaponKv.GetSectionName(description, sizeof(description));
+				WeaponKv.GetString(NULL_STRING, value, sizeof(value));
+
+				int attrib = TF2ED_TranslateAttributeNameToDefinitionIndex(description);
+				if(attrib != -1)
+				{
+					bool isHidden = (TF2ED_GetAttributeDefinitionString(attrib, "hidden", type, sizeof(type)) && StringToInt(type));
+					bool doesDescriptionExist = TF2ED_GetAttributeDefinitionString(attrib, "description_string", description, sizeof(description));
+
+					if(value[0] != 'R' && !isHidden && doesDescriptionExist)
+					{
+						TF2ED_GetAttributeDefinitionString(attrib, "description_format", type, sizeof(type));
+						FormatValue(value, value, sizeof(value), type);
+						PrintSayText2(client, client, true, description, value);
+					}
+				}
 			}
+			while(WeaponKv.GotoNextKey(false));
+			
+			WeaponKv.GoBack();
 		}
-		while(WeaponKv.GotoNextKey(false));
+
+		if(WeaponKv.JumpToKey("custom") && WeaponKv.GotoFirstSubKey(false))
+		{
+			char key[64], data[256];
+			do
+			{
+				WeaponKv.GetSectionName(key, sizeof(key));
+				if(TranslationPhraseExists(key))
+				{
+					WeaponKv.GetString(NULL_STRING, data, sizeof(data));
+					FormatValue(data, value, sizeof(value), "value_is_percentage");
+					FormatValue(data, description, sizeof(description), "value_is_inverted_percentage");
+					FormatValue(data, type, sizeof(type), "value_is_additive_percentage");
+					PrintToChat(client, "%t", key, value, description, type, data);
+				}
+			}
+			while(WeaponKv.GotoNextKey(false));
+		}
 	}
 }
 
@@ -442,44 +430,26 @@ public void Weapons_SpawnFrame(int ref)
 		}
 	}
 	
-	bool found;
-	current = 0;
-	char value[16];
+	char name[64];
 
-	char attributes[512];
-	WeaponKv.GetString("attributes", attributes, sizeof(attributes));
-	
-	do
+	if(WeaponKv.JumpToKey("attributes"))
 	{
-		int add = SplitString(attributes[current], ";", value, sizeof(value));
-		if(add == -1)
-			break;
-		
-		int attrib = StringToInt(value);
-		if(!attrib)
-			break;
-		
-		current += add;
-		add = SplitString(attributes[current], ";", value, sizeof(value));
-		found = add != -1;
-
-		if(found)
+		if(WeaponKv.GotoFirstSubKey(false))
 		{
-			current += add;
+			do
+			{
+				WeaponKv.GetSectionName(name, sizeof(name));
+				TF2Attrib_SetByName(entity, name, WeaponKv.GetFloat(NULL_STRING));
+			}
+			while(WeaponKv.GotoNextKey(false));
+			WeaponKv.GoBack();
 		}
-		else
-		{
-			strcopy(value, sizeof(value), attributes[current]);
-		}
-		
-		TF2Attrib_SetByDefIndex(entity, attrib, StringToFloat(value));
-	}
-	while(found);
 	
-	#if defined __tf_custom_attributes_included
-	if(WeaponKv.JumpToKey("custom"))
-		ApplyCustomAttributes(entity);
-	#endif
+		#if defined __tf_custom_attributes_included
+		if(WeaponKv.JumpToKey("custom"))
+			ApplyCustomAttributes(entity);
+		#endif
+	}
 }
 
 static bool FindWeaponSection(int entity, bool zombie)
