@@ -144,6 +144,11 @@
 		"#format"	"{1:s},{2:s},{3:s},{4:s}"
 		"en"		"Resistances effect melee hits and can stack"
 	}
+	"zombie healing DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Healing removes damage slowness"
+	}
 	"spy-cicle special DISPLAY ONLY"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s}"
