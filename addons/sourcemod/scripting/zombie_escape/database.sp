@@ -141,6 +141,8 @@ public void Database_ClientSetup(Database db, int userid, int numQueries, DBResu
 		{
 			ZPrintToChat(client, "%t", "Preference Updated");
 		}
+
+		ZPrintToChat(client, "%t", "Plugin Advert", PLUGIN_VERSION_FULL);
 		
 		Cached[client] = true;
 	}
