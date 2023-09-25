@@ -19,7 +19,6 @@
 #include <tf2_stocks>
 #include <morecolors>
 #include <dhooks>
-#include <tf2items>
 #include <tf2attributes>
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
