@@ -65,18 +65,18 @@ void DHook_Setup()
 	
 	delete gamedata;
 
-	EconItemOffset = FindSendPropInfo("CEconEntity", "EconItemOffset");
-	FindSendPropInfo("CEconEntity", "EconViewAttribsOffset", _, _, EconViewAttribsOffset);
+	EconItemOffset = FindSendPropInfo("CEconEntity", "m_Item");
+	FindSendPropInfo("CEconEntity", "m_bOnlyIterateItemViewAttributes", _, _, EconViewAttribsOffset);
 
 	if(EconItemOffset < 1)
 	{
 		FailCritical++;
-		LogError("[Gamedata] Could not find CEconEntity::EconItemOffset");
+		LogError("[Gamedata] Could not find CEconEntity::m_Item");
 	}
 	else if(EconViewAttribsOffset < 1)
 	{
 		FailCritical++;
-		LogError("[Gamedata] Could not find CEconEntity::EconViewAttribsOffset");
+		LogError("[Gamedata] Could not find CEconEntity::m_bOnlyIterateItemViewAttributes");
 	}
 	
 	RawEntityHooks = new ArrayList(sizeof(RawHooks));

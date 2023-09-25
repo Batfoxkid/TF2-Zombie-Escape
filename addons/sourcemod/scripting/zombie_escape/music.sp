@@ -433,7 +433,7 @@ void Music_PlayNextSong(int client)
 			else if(Gamemode_InLastman())
 			{
 				StopRabies(client);
-				PlayMusic(client, "#szf/music/the_end/skinonourteeth.mp3", 96);
+				PlayMusic(client, "#szf/music/the_end/skinonourteeth.mp3", 76);
 			}
 			else if(IsPlayerAlive(client))
 			{

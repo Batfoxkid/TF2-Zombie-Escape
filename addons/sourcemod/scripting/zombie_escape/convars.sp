@@ -31,10 +31,18 @@ static bool CvarHooked;
 void ConVar_PluginStart()
 {
 	Cvar[Version] = CreateConVar("ze_version", PLUGIN_VERSION_FULL, "Zombie Escape Version", FCVAR_NOTIFY|FCVAR_DONTRECORD);
-	Cvar[Debugging] = CreateConVar("ze_debug", "1", "If to display debug outputs", FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
+	Cvar[Debugging] = CreateConVar("ze_debug", "0", "If to display debug outputs", FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	
-	Cvar[ZombieRatio] = CreateConVar("ze_map_infect_ratio", "0.15", "Zombies to total players at the start of a round", _, true, 0.0, true, 1.0);
-	Cvar[ZombieUpward] = CreateConVar("ze_zombie_upward_knockback", "270.0", "Amount of extra upward knockback");
+	Cvar[PointCommand] = FindConVar("sv_allow_point_servercommand");
+	Cvar[ZombieRatio] = CreateConVar("ze_game_zombiestart", "0.15", "Zombies to total players at the start of a round", _, true, 0.0, true, 1.0);
+	Cvar[ZombieUpward] = CreateConVar("ze_zombie_knockback_upward", "270.0", "Minimum amount of upward knockback");
+	Cvar[CrippleMax] = CreateConVar("ze_game_cripple_max", "450.0", "Max amount of cripple damage", _, true, 0.0);
+	Cvar[CrippleDecay] = CreateConVar("ze_game_cripple_decay", "50.0", "Cripple damage decay rate every second", _, true, 0.0);
+	Cvar[ShieldMax] = CreateConVar("ze_game_cripple_shield", "300.0", "Max amount of cripple shield (overheal)", _, true, 0.0);
+	Cvar[ShieldDecay] = CreateConVar("ze_game_cripple_shielddecay", "10.0", "Cripple shield decay rate every second", _, true, 0.0);
+	Cvar[CrippleSpeed] = CreateConVar("ze_game_cripple_speed", "300.0", "Amount of cripple damage to be fully immobile", _, true, 0.000001);
+	Cvar[CrippleHuman] = CreateConVar("ze_game_cripple_human", "1", "Human players are also affected by cripple damage", _, true, 0.0, true, 1.0);
+	Cvar[ZombieSlots] = CreateConVar("ze_zombie_weapon_slots", "1", "If zombies can be equip primary and secondary slots", _, true, 0.0, true, 1.0);
 	
 	AutoExecConfig(false, "ZombieEscape");
 	
@@ -51,11 +59,24 @@ void ConVar_PluginStart()
 	ConVar_Add("tf_weapon_criticals_melee", "0");
 }
 
+void ConVar_PluginEnd()
+{
+	ConVar_Disable();
+	if(Cvar[PointCommand])
+		Cvar[PointCommand].SetString("official");
+}
+
 void ConVar_ConfigsExecuted()
 {
 	bool generate = !FileExists("cfg/sourcemod/ZombieEscape.cfg");
 	
-	if(!generate)
+	if(generate)
+	{
+		// ZE defaults to always
+		if(Cvar[PointCommand])
+			Cvar[PointCommand].SetString("always");
+	}
+	else
 	{
 		char buffer[512];
 		Cvar[Version].GetString(buffer, sizeof(buffer));

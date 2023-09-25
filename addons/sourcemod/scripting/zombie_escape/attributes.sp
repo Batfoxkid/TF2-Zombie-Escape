@@ -17,8 +17,25 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+static float BackstabCooldown[MAXPLAYERS+1];
+
+void Attributes_MapEnd()
+{
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		BackstabCooldown[i] = 0.0;
+	}
+}
+
 void Attributes_OnBackstabZombie(int victim, int attacker, float &damage, int &damagetype, int weapon)
 {
+	float gameTime = GetGameTime();
+	if(BackstabCooldown[victim] > gameTime)
+	{
+		damage = 0.0;
+		return;
+	}
+
 	if(Attributes_FindOnWeapon(attacker, weapon, 217))	// sanguisuge
 	{
 		int maxoverheal = SDKCall_GetMaxHealth(attacker) * 3;
@@ -70,16 +87,21 @@ void Attributes_OnBackstabZombie(int victim, int attacker, float &damage, int &d
 			pack.WriteCell(GetClientHealth(victim));
 		}
 	}
+
+	float time = damage / 50.0;
 	
 	if(Attributes_FindOnWeapon(attacker, weapon, 156))	// silent killer
 	{
 		damagetype |= DMG_PREVENT_PHYSICS_FORCE;
-		TF2_AddCondition(victim, TFCond_HalloweenKartNoTurn, damage / 75.0, attacker);
+		time *= 0.75;
+		TF2_AddCondition(victim, TFCond_HalloweenKartNoTurn, time, attacker);
 	}
 	else
 	{
-		TF2_StunPlayer(victim, damage / 50.0, 1.0, TF_STUNFLAGS_BIGBONK, attacker);
+		TF2_StunPlayer(victim, time, 1.0, TF_STUNFLAGS_BIGBONK, attacker);
 	}
+
+	BackstabCooldown[victim] = gameTime + time + 1.0;
 }
 
 public void Attributes_RedisguiseFrame(DataPack pack)

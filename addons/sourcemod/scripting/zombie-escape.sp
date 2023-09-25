@@ -52,9 +52,19 @@ enum
 {
 	Version,
 	Debugging,
+
+	PointCommand,
 	
 	ZombieRatio,
+	CrippleDecay,
+	CrippleHuman,
+	CrippleMax,
+	ShieldMax,
+	ShieldDecay,
+	CrippleSpeed,
+
 	ZombieUpward,
+	ZombieSlots,
 	
 	AllowSpectators,
 	
@@ -75,6 +85,7 @@ ConVar Cvar[Cvar_MAX];
 #include "zombie_escape/events.sp"
 #include "zombie_escape/filenetwork.sp"
 #include "zombie_escape/gamemode.sp"
+#include "zombie_escape/map.sp"
 #include "zombie_escape/menu.sp"
 #include "zombie_escape/music.sp"
 #include "zombie_escape/sdkcalls.sp"
@@ -113,6 +124,7 @@ public void OnPluginStart()
 	Events_PluginStart();
 	FileNet_PluginStart();
 	Gamemode_PluginStart();
+	Map_PluginStart();
 	Menu_PluginStart();
 	Music_PluginStart();
 	SDKCall_Setup();
@@ -142,12 +154,14 @@ public void OnConfigsExecuted()
 
 public void OnMapEnd()
 {
+	Attributes_MapEnd();
 	FileNet_MapEnd();
+	Map_MapEnd();
 }
 
 public void OnPluginEnd()
 {
-	ConVar_Disable();
+	ConVar_PluginEnd();
 	Database_PluginEnd();
 	DHook_PluginEnd();
 	Music_PluginEnd();
@@ -187,6 +201,7 @@ public void OnClientDisconnect(int client)
 {
 	Database_ClientDisconnect(client);
 	Gamemode_ClientDisconnect(client);
+	FileNet_ClientDisconnect(client);
 	
 	Client(client).ResetByAll();
 }

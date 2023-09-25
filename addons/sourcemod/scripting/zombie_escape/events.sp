@@ -45,7 +45,7 @@ public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcas
 public void Events_PlayerHealed(Event event, const char[] name, bool dontBroadcast)
 {
 	int patient = event.GetInt("patient");
-	if(patient)
+	if(patient && IsClientInGame(patient))
 		Gamemode_TakeDamage(patient, float(-event.GetInt("amount")), DMG_CRIT);
 }
 

@@ -10,6 +10,7 @@
 	}
 	"Plugin Advert"
 	{
+		"#format"	"{1:s}"
 		"en"		"{blue}Welcome to {orange}Zombie Escape: Open Source ({1})\n{blue}Use {orange}/ze {blue}to see all available commands"
 	}
 	

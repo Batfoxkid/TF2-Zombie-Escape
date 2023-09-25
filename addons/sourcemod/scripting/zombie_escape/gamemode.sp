@@ -18,11 +18,12 @@
 #pragma newdecls required
 
 #define SKIN_ZOMBIE		4
-#define SKIN_ZOMBIE_SPY	SKIN_ZOMBIE + 19
+#define SKIN_ZOMBIE_SPY	SKIN_ZOMBIE + 18
 
 static Handle GameHud;
 static Handle PlayerHud;
 static bool LastMann;
+static bool InRespawn;
 
 static Handle CrippleTimer[MAXTF2PLAYERS];
 
@@ -45,11 +46,15 @@ void Gamemode_RoundSetup()
 			ClearSyncHud(client, GameHud);
 			ClearSyncHud(client, PlayerHud);
 
+			SetEntProp(client, Prop_Send, "m_lifeState", 2);
 			ChangeClientTeam(client, TFTeam_Human);
+			SetEntProp(client, Prop_Send, "m_lifeState", 0);
+
 			TF2_RespawnPlayer(client);
 		}
 	}
 
+	Map_RoundSetup();
 	Music_RoundSetup();
 }
 
@@ -252,8 +257,10 @@ void Gamemode_PlayerDeath(int client, int userid, int attacker)
 {
 	Debug("Gamemode_PlayerDeath::%N::%d", client, attacker);
 
-	if(Client(client).Human && !GameRules_GetProp("m_bInSetup"))
+	if(Client(client).Human && GameRules_GetRoundState() == RoundState_RoundRunning && !GameRules_GetProp("m_bInSetup"))
 	{
+		Debug("IsHuman & Not In Setup");
+
 		if(!LastMann)
 		{
 			if(attacker > 0 && attacker <= MaxClients && Client(attacker).Zombie)
@@ -261,6 +268,9 @@ void Gamemode_PlayerDeath(int client, int userid, int attacker)
 				float pos[3], ang[3];
 				GetClientAbsOrigin(client, pos);
 				GetClientEyeAngles(client, ang);
+
+				// Respawn as the class you died as
+				SetEntProp(client, Prop_Send, "m_iDesiredPlayerClass", TF2_GetPlayerClass(client));
 
 				DataPack pack = new DataPack();
 				RequestFrame(Gamemode_PlayerDeathFrame, pack);
@@ -298,8 +308,11 @@ public void Gamemode_PlayerDeathFrame(DataPack pack)
 		int entity = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 		if(IsValidEntity(entity))
 			AcceptEntityInput(entity, "Kill");
-
+		
+		InRespawn = true;
 		TF2_RespawnPlayer(client);
+		InRespawn = false;
+
 		TeleportEntity(client, pos, ang, NULL_VECTOR);
 		TF2_StunPlayer(client, 5.0, 1.0, TF_STUNFLAGS_NORMALBONK);
 	}
@@ -355,7 +368,9 @@ void Gamemode_ClientDisconnect(int client)
 
 bool Gamemode_ForceRespawn(int client)
 {
-	if(GetClientTeam(client) == TFTeam_Zombie && !IsPlayerAlive(client))
+	Debug("Gamemode_ForceRespawn::%d", InRespawn);
+
+	if(!InRespawn && GetClientTeam(client) == TFTeam_Zombie && !IsPlayerAlive(client))
 	{
 		float pos[3], ang[3];
 
@@ -370,11 +385,16 @@ bool Gamemode_ForceRespawn(int client)
 		{
 			for(target = 1; target <= MaxClients; target++)
 			{
-				if(client != target && IsClientInGame(target) && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target) && Client(target).Cripple < 1.0)
+				if(client != target && IsClientInGame(target) && GetClientTeam(target) == TFTeam_Zombie && IsPlayerAlive(target))
 				{
-					GetClientAbsOrigin(target, pos);
-					GetClientEyeAngles(target, ang);
-					break;
+					if(Client(target).Cripple < 1.0)
+					{
+						GetClientAbsOrigin(target, pos);
+						GetClientEyeAngles(target, ang);
+						break;
+					}
+
+					ang[0] = 1.0;	// We have someone alive, prevent spawning at spawn points
 				}
 			}
 		}
@@ -382,7 +402,7 @@ bool Gamemode_ForceRespawn(int client)
 		if(!pos[0])
 		{
 			PrintCenterText(client, "No safe spawn location...");
-			return true;
+			return view_as<bool>(ang[0]);
 		}
 		
 		DataPack pack = new DataPack();
@@ -413,7 +433,7 @@ public void Gamemode_SpawnFrame(DataPack pack)
 		}
 
 		TeleportEntity(client, pos, ang);
-		Gamemode_TakeDamage(client, 300.0, DMG_CRIT);
+		Gamemode_TakeDamage(client, Cvar[CrippleMax].FloatValue, 0);
 	}
 
 	delete pack;
@@ -431,7 +451,10 @@ void Gamemode_TakeDamage(int victim, float damage, int damagetype)
 	
 	if(GetClientTeam(victim) == TFTeam_Human)
 	{
-		Client(victim).Cripple += damage * 4.0;
+		if(!Cvar[CrippleHuman].BoolValue)
+			return;
+		
+		Client(victim).Cripple += damage * 3.0;
 	}
 	else
 	{
@@ -452,26 +475,24 @@ public Action Timer_CrippleUpdate(Handle timer, int client)
 
 	if(Client(client).Cripple < 0.0)
 	{
-		if(Client(client).Cripple < -400.0)
+		if(Client(client).Cripple < -Cvar[ShieldMax].FloatValue)
+			Client(client).Cripple = -Cvar[ShieldMax].FloatValue;
+		
+		Client(client).Cripple += Cvar[ShieldDecay].FloatValue * 0.1;
+		if(Client(client).Cripple > 0.0)
+			Client(client).Cripple = 0.0;
+	}
+	else
+	{
+		if(Client(client).Cripple > Cvar[CrippleMax].FloatValue)
+			Client(client).Cripple = Cvar[CrippleMax].FloatValue;
+		
+		if(!TF2_IsPlayerInCondition(client, TFCond_MarkedForDeath))
 		{
-			Client(client).Cripple = 399.0;
-		}
-		else
-		{
-			Client(client).Cripple += 1.0;
-			if(Client(client).Cripple > 0.0)
+			Client(client).Cripple -= Cvar[CrippleDecay].FloatValue * 0.1;
+			if(Client(client).Cripple < 0.0)
 				Client(client).Cripple = 0.0;
 		}
-	}
-	else if(Client(client).Cripple > 800.0)
-	{
-		Client(client).Cripple = 790.0;
-	}
-	else if(!TF2_IsPlayerInCondition(client, TFCond_MarkedForDeath))
-	{
-		Client(client).Cripple -= 10.0;
-		if(Client(client).Cripple < 0.0)
-			Client(client).Cripple = 0.0;
 	}
 	
 	UpdateCrippleSpeed(client);
@@ -482,11 +503,11 @@ static void UpdateCrippleSpeed(int client)
 {
 	if(Client(client).Cripple > 0.0)
 	{
-		float slowdown = Client(client).Cripple / 500.0;
+		float slowdown = Client(client).Cripple / Cvar[CrippleMax].FloatValue;
 		if(slowdown > 1.0)
 			slowdown = 1.0;
 		
 		if(slowdown > 0.4)
-			TF2_StunPlayer(client, 0.15, slowdown, TF_STUNFLAG_SLOWDOWN);
+			TF2_StunPlayer(client, 0.22, slowdown, TF_STUNFLAG_SLOWDOWN);
 	}
 }

@@ -277,6 +277,10 @@ void Weapons_ShowChanges(int client, int entity)
 			do
 			{
 				WeaponKv.GetSectionName(description, sizeof(description));
+
+				if(StrEqual(description, "custom"))
+					continue;
+				
 				WeaponKv.GetString(NULL_STRING, value, sizeof(value));
 
 				int attrib = TF2ED_TranslateAttributeNameToDefinitionIndex(description);
@@ -406,8 +410,28 @@ public void Weapons_SpawnFrame(int ref)
 	if(client < 1 || client > MaxClients)
 		return;
 	
+	if(!Cvar[ZombieSlots].BoolValue && Client(client).Zombie)
+	{
+		char classname[36];
+		if(GetEntityClassname(entity, classname, sizeof(classname)))
+		{
+			int slot = TF2_GetClassnameSlot(classname);
+			if(slot == TFWeaponSlot_Primary || slot == TFWeaponSlot_Secondary)
+			{
+				TF2_RemoveItem(client, entity);
+				return;
+			}
+		}
+	}
+	
 	if(!FindWeaponSection(entity, Client(client).Zombie))
 		return;
+	
+	if(WeaponKv.GetNum("remove"))
+	{
+		TF2_RemoveItem(client, entity);
+		return;
+	}
 	
 	if(WeaponKv.GetNum("strip"))
 		DHook_HookStripWeapon(entity);
@@ -439,6 +463,15 @@ public void Weapons_SpawnFrame(int ref)
 			do
 			{
 				WeaponKv.GetSectionName(name, sizeof(name));
+				if(StrEqual(name, "custom"))
+					continue;
+				
+				if(!TF2Attrib_IsValidAttributeName(name))
+				{
+					LogError("[Weapons] Bad attribute name '%s'", name);
+					continue;
+				}
+
 				TF2Attrib_SetByName(entity, name, WeaponKv.GetFloat(NULL_STRING));
 			}
 			while(WeaponKv.GotoNextKey(false));
