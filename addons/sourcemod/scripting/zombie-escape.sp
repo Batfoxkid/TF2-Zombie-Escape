@@ -143,17 +143,18 @@ public void OnMapStart()
 {
 	char buffer[64];
 	GetCurrentMap(buffer, sizeof(buffer));
-	if(StrContains(buffer, "ze_") == -1)
-	{
-		// Other maps will be Blue Zombies
-		TFTeam_Human = TFTeam_Red;
-		TFTeam_Zombie = TFTeam_Blue;
-	}
-	else
+	GetMapDisplayName(buffer, buffer, sizeof(buffer));
+	if(!StrContains(buffer, "ze_", false))
 	{
 		// Zombie Escape maps are Red Zombies
 		TFTeam_Human = TFTeam_Blue;
 		TFTeam_Zombie = TFTeam_Red;
+	}
+	else
+	{
+		// Other maps will be Blue Zombies
+		TFTeam_Human = TFTeam_Red;
+		TFTeam_Zombie = TFTeam_Blue;
 	}
 
 	DHook_MapStart();
