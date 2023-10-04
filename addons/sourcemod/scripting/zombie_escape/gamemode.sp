@@ -39,7 +39,7 @@ void Gamemode_RoundSetup()
 
 	for(int client = 1; client <= MaxClients; client++)
 	{
-		if(IsClientInGame(client))
+		if(IsClientInGame(client) && GetClientTeam(client) > TFTeam_Spectator)
 		{
 			Client(client).ResetByRound();
 			

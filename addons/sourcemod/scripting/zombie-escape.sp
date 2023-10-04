@@ -44,9 +44,6 @@
 #define TFTeam_Blue			3
 #define TFTeam_MAX			4
 
-#define TFTeam_Human	TFTeam_Blue
-#define TFTeam_Zombie	TFTeam_Red
-
 enum
 {
 	Version,
@@ -71,6 +68,9 @@ enum
 }
 
 ConVar Cvar[Cvar_MAX];
+
+int TFTeam_Human = TFTeam_Blue;
+int TFTeam_Zombie = TFTeam_Red;
 
 #include "zombie_escape/client.sp"
 #include "zombie_escape/stocks.sp"
@@ -141,6 +141,21 @@ public void OnPluginStart()
 
 public void OnMapStart()
 {
+	char buffer[64];
+	GetCurrentMap(buffer, sizeof(buffer));
+	if(StrContains(buffer, "ze_") == -1)
+	{
+		// Other maps will be Blue Zombies
+		TFTeam_Human = TFTeam_Red;
+		TFTeam_Zombie = TFTeam_Blue;
+	}
+	else
+	{
+		// Zombie Escape maps are Red Zombies
+		TFTeam_Human = TFTeam_Blue;
+		TFTeam_Zombie = TFTeam_Red;
+	}
+
 	DHook_MapStart();
 	Music_MapStart();
 }
@@ -201,12 +216,13 @@ public void OnClientDisconnect(int client)
 	Database_ClientDisconnect(client);
 	Gamemode_ClientDisconnect(client);
 	FileNet_ClientDisconnect(client);
+	Map_ClientDisconnect(client);
 	
 	Client(client).ResetByAll();
 }
 
-public Action OnPlayerRunCmd(int client, int &buttons)
+public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
 {
-	Music_PlayerRunCmd(client);
-	return Plugin_Continue;
+	Map_PlayerRunCmdPost(client, angles);
+	Music_PlayerRunCmdPost(client);
 }

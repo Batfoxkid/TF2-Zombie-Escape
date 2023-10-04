@@ -439,3 +439,8 @@ stock any Clamp(any value, any min, any max)
 	
 	return value;
 }
+
+public bool Trace_DontHitSelf(int entity, int mask, any data)
+{
+	return entity != data;
+}

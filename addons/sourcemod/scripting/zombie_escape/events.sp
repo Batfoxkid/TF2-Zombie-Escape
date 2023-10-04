@@ -34,6 +34,8 @@ public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcas
 	int victim = GetClientOfUserId(userid);
 	if(victim)
 	{
+		Map_PlayerDeath(victim);
+		
 		if(!(event.GetInt("death_flags") & TF_DEATHFLAG_DEADRINGER))
 		{
 			Client(victim).ResetByDeath();

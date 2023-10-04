@@ -28,7 +28,7 @@ void Command_PluginStart()
 
 public Action Command_Voicemenu(int client, const char[] command, int args)
 {
-	if(client && args == 2 && Client(client).Zombie && IsPlayerAlive(client))
+	if(client && args == 2 && IsPlayerAlive(client))
 	{
 		char arg[4];
 		GetCmdArg(1, arg, sizeof(arg));
@@ -37,8 +37,8 @@ public Action Command_Voicemenu(int client, const char[] command, int args)
 			GetCmdArg(2, arg, sizeof(arg));
 			if(arg[0] == '0')
 			{
-				// TODO: Rage
-				return Plugin_Handled;
+				if(Map_CallForMedic(client))
+					return Plugin_Handled;
 			}
 		}
 	}

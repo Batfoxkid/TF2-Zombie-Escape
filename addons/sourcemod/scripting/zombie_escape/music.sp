@@ -213,7 +213,7 @@ void Music_RoundEnd(int team, bool full_round)
 	Music_ForceNextSong(team == TFTeam_Human ? 2 : 3);
 }
 
-void Music_PlayerRunCmd(int client)
+void Music_PlayerRunCmdPost(int client)
 {
 	if(NextThemeAt[client] != NO_MUSIC_TIME && NextThemeAt[client] <= GetTime())
 		Music_PlayNextSong(client);
@@ -618,19 +618,17 @@ static bool AreHumansLosing()
 	{
 		if(IsClientInGame(target))
 		{
-			switch(GetClientTeam(target))
+			int team = GetClientTeam(target);
+			if(team == TFTeam_Human)
 			{
-				case TFTeam_Human:
-				{
-					total++;
+				total++;
 
-					if(IsPlayerAlive(target))
-						humans++;
-				}
-				case TFTeam_Zombie:
-				{
-					total++;
-				}
+				if(IsPlayerAlive(target))
+					humans++;
+			}
+			else if(team == TFTeam_Zombie)
+			{
+				total++;
 			}
 		}
 	}
