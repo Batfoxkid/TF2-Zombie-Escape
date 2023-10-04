@@ -270,7 +270,7 @@ public void SDKHook_TakeDamagePost(int victim, int attacker, int inflictor, floa
 			}
 		}
 
-		if(victim != attacker)
+		if(attacker > 0 && attacker <= MaxClients && victim != attacker)
 			Attributes_OnHitZombie(attacker, victim, inflictor, damage, weapon, damagecustom);
 	}
 
