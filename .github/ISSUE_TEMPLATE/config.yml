@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question Only
+    url: https://github.com/Batfoxkid/TF2-Zombie-Escape/discussions/new?category=q-a
+    about: If it's only a question and not a bug or feature request.

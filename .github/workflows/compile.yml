@@ -1,0 +1,44 @@
+name: Compile
+
+on:
+  pull_request:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sm-version: [ '1.12.x']
+    
+    steps:
+      - name: Install Checkout
+        uses: actions/checkout@v1
+      
+      - name: Install Setup SP ${{ matrix.sm-version }}
+        uses: rumblefrog/setup-sp@master
+        with:
+          version: ${{ matrix.sm-version }}
+      
+      - name: Get GitHub Env
+        run: |
+          echo "PLUGIN_VERSION_REVISION<<EOF" >> $GITHUB_ENV
+          git rev-list --count HEAD >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      
+      - name: Install Misc
+        run: bash scripts/setup.sh
+        working-directory: ./
+      
+      - name: Minimum Compile ${{ matrix.sm-version }}
+        run: |
+          spcomp -E -O2 -v2 -i "include" zombie-escape.sp
+        working-directory: ${{ env.SCRIPTS_PATH }}
+      
+      - name: Install Optional Includes
+        run: bash scripts/optional.sh
+        working-directory: ./
+      
+      - name: Full Compile ${{ matrix.sm-version }}
+        run: bash compile.sh
+        working-directory: ${{ env.SCRIPTS_PATH }}

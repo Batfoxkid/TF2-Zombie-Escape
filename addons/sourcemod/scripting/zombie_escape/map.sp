@@ -20,7 +20,7 @@
 static Handle HudSync;
 static Handle MapTimer;
 static float MapTimerEnd;
-static int HeldPropRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static int HeldPropRef[MAXTF2PLAYERS] = {INVALID_ENT_REFERENCE, ...};
 
 void Map_PluginStart()
 {

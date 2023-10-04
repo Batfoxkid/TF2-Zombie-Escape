@@ -17,7 +17,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-static float BackstabCooldown[MAXPLAYERS+1];
+static float BackstabCooldown[MAXTF2PLAYERS];
 
 void Attributes_MapEnd()
 {

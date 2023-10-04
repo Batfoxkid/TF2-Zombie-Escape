@@ -3,14 +3,14 @@
 ### An entirely open source Zombie Escape gamemode where survivors escape the map with zombies that are only vulnerable to knockback.
 
 ## Installation:
-
-No release packages are available yet and as such requires you to manually compile yourself.
+**[View Releases](https://github.com/Batfoxkid/TF2-Zombie-Escape/releases)**  
+Use `New Install Package` for installing for the first time
+Use `Update Package` to update your current version of Zombie Escape
 
 Required:
 
 - [SourceMod 1.12.7039+](https://www.sourcemod.net/downloads.php)
 - [TF2Attributes 1.7.0+](https://github.com/FlaminSarge/tf2attributes)
-
 
 Recommended:
 
