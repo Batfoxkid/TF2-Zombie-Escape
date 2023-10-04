@@ -4,7 +4,7 @@
 
 ## Installation:
 **[View Releases](https://github.com/Batfoxkid/TF2-Zombie-Escape/releases)**  
-Use `New Install Package` for installing for the first time
+Use `New Install Package` for installing for the first  
 Use `Update Package` to update your current version of Zombie Escape
 
 Required:
