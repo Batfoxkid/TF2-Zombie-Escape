@@ -141,7 +141,7 @@ public void OnPluginStart()
 
 public void OnMapStart()
 {
-	char buffer[64];
+	char buffer[PLATFORM_MAX_PATH];
 	GetCurrentMap(buffer, sizeof(buffer));
 	GetMapDisplayName(buffer, buffer, sizeof(buffer));
 	if(!StrContains(buffer, "ze_", false))

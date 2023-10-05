@@ -47,7 +47,7 @@ public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcas
 public void Events_PlayerHealed(Event event, const char[] name, bool dontBroadcast)
 {
 	int patient = event.GetInt("patient");
-	if(patient && IsClientInGame(patient))
+	if(patient > 0 && patient <= MaxClients && IsClientInGame(patient))
 		Gamemode_TakeDamage(patient, float(-event.GetInt("amount")), DMG_CRIT);
 }
 
@@ -57,9 +57,13 @@ public Action Events_PlayerHurt(Event event, const char[] name, bool dontBroadca
 	int victim = GetClientOfUserId(userid);
 	if(victim && Client(victim).Zombie)
 	{
-		SetEntityHealth(victim, 9999);
-		event.SetInt("health", 9999);
-		return Plugin_Changed;
+		int attacker = GetClientOfUserId(event.GetInt("userid"));
+		if(attacker > 0 && attacker <= MaxClients)
+		{
+			SetEntityHealth(victim, 9999);
+			event.SetInt("health", 9999);
+			return Plugin_Changed;
+		}
 	}
 	return Plugin_Continue;
 }

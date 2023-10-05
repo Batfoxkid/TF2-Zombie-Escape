@@ -108,7 +108,7 @@ bool Map_CallForMedic(int client)
 				if(GetEntityClassname(entity, buffer, sizeof(buffer)) && !StrContains(buffer, "prop_physics"))
 				{
 					GetEntPropString(entity, Prop_Data, "m_iName", buffer, sizeof(buffer));
-					if(StrEqual(buffer, "gascan") ||
+					if(StrEqual(buffer, "gascan", false) ||
 						StrContains(buffer, "szf_carry", false) != -1 ||
 						StrContains(buffer, "szf_pick", false) != -1)
 					{

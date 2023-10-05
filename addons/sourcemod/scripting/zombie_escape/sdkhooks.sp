@@ -139,10 +139,14 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 				damage = 0.0;
 				return Plugin_Handled;
 			}
+
+			if(damage > 200.0)
+				ForcePlayerSuicide(victim);
 		}
 		else if(victim == attacker)
 		{
-			return Plugin_Continue;
+			if(damage > 300.0)
+				ForcePlayerSuicide(victim);
 		}
 		else if(attacker > 0 && attacker <= MaxClients)
 		{
@@ -168,14 +172,9 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 			Attributes_OnHitZombiePre(damage, damagetype, weapon, view_as<int>(critType));
 			return Plugin_Changed;
 		}
-		else
+		else if(damage > 200.0)
 		{
-			damage *= 500.0;
-			
-			if(critType == CritType_None && (damagetype & DMG_CRIT))
-				critType = CritType_Crit;
-			
-			return Plugin_Changed;
+			ForcePlayerSuicide(victim);
 		}
 	}
 	else if(attacker > 0 && attacker <= MaxClients && Client(attacker).Zombie)
