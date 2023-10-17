@@ -36,7 +36,7 @@ static KeyValues WeaponKv;
 
 void Weapons_PluginStatus()
 {
-	#if defined __tf_econ_data_included
+	#if defined __cwx_included
 	PrintToServer("SM-TFCustomWeaponsX: %s", CWXLoaded ? "Running" : "Library not running");
 	#else
 	PrintToServer("SM-TFCustomWeaponsX: Compiled without include \"cwx\"");
