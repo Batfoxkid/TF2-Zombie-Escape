@@ -8,37 +8,49 @@
 			{
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer22CanPickupDroppedWeaponEPK16CTFDroppedWeapon"
-				"windows"	"\x55\x8B\xEC\x53\x8B\x5D\x08\x56\x8B\xF1\x80\xBB\x04\x05\x00\x00\x00"
+				"linux64"	"@_ZN9CTFPlayer22CanPickupDroppedWeaponEPK16CTFDroppedWeapon"
+				"windows"	"\x55\x8B\xEC\x51\x8B\x45\x08\x53\x56\x57\x80\xB8\x04\x05\x00\x00\x00"
+				"windows64"	"\x48\x89\x5C\x24\x08\x48\x89\x6C\x24\x18\x56\x57\x41\x56\x48\x83\xEC\x20\x80\xBA\x54\x06\x00\x00\x00"
 			}
 			"CTFPlayer::CheckBlockBackstab"
 			{
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer18CheckBlockBackstabEPS_"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\x8B\xF9\x8D\x9F\xE0\x1A\x00\x00"
+				"linux64"	"@_ZN9CTFPlayer18CheckBlockBackstabEPS_"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\x8B\xF9\x8D\x8F\xE0\x1A\x00\x00"
+				"windows64"	"\x40\x55\x41\x55\x41\x57\x48\x81\xEC\xA0\x00\x00\x00"
 			}
 			"CTFPlayer::DropAmmoPack"
 			{
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer12DropAmmoPackERK15CTakeDamageInfobb"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x28\x53\x8B\xD9\xC7\x45\xFC\x00\x00\x00\x00"
+				"linux64"	"@_ZN9CTFPlayer12DropAmmoPackERK15CTakeDamageInfobb"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x2C\x53\x56\x8B\xF1\xC7\x45\xFC\x00\x00\x00\x00"
+				"windows64"	"\x48\x89\x5C\x24\x08\x44\x88\x4C\x24\x20"
 			}
 			"CTFPlayer::RegenThink"
 			{
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
+				"linux64"	"@_ZN9CTFPlayer10RegenThinkEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1"
+				"windows64"	"\x40\x53\x48\x81\xEC\x30\x01\x00\x00\x48\x8B\x01"
 			}
 			"CTFPlayer::TeamFortress_SetSpeed"
 			{
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer21TeamFortress_SetSpeedEv"
-				"windows"	"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x1C\x53"
+				"linux64"	"@_ZN9CTFPlayer21TeamFortress_SetSpeedEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x28\xA1\x2A\x2A\x2A\x2A\x56"
+				"windows64"	"\x40\x55\x48\x83\xEC\x60\x48\x8B\x05\x13\x3D\x7A\x00"
 			}
 			"CTFWeaponBaseMelee::DoSwingTraceInternal"
 			{
   			  	"library"	"server"
-    				"linux"		"@_ZN18CTFWeaponBaseMelee20DoSwingTraceInternalER10CGameTracebP10CUtlVectorIS0_10CUtlMemoryIS0_iEE"
-				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x38\x05\x00\x00\xA1\x2A\x2A\x2A\x2A"
+				"linux"		"@_ZN18CTFWeaponBaseMelee20DoSwingTraceInternalER10CGameTracebP10CUtlVectorIS0_10CUtlMemoryIS0_iEE"
+				"linux64"	"@_ZN18CTFWeaponBaseMelee20DoSwingTraceInternalER10CGameTracebP10CUtlVectorIS0_10CUtlMemoryIS0_iEE"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x38\x05\x00\x00"
+				"windows64"	"\x48\x89\x74\x24\x18\x55\x57\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\xA0\xF6\xFF\xFF"
 			}
 		}
 		"Offsets"
@@ -46,37 +58,51 @@
 			"CBasePlayer::ForceRespawn"
 			{
 				"linux"		"337"
+				"linux64"	"337"
 				"windows"	"336"
+				"windows64"	"336"
 			}
 			"CEconItemView::IterateAttributes"
 			{
 				"linux"		"19"
+				"linux64"	"19"
 				"windows"	"18"
+				"windows64"	"18"
 			}
 			"CTeamplayRoundBasedRules::RoundRespawn"
 			{
 				"linux"		"231"
+				"linux64"	"231"
 				"windows"	"229"
+				"windows64"	"229"
 			}
 			"CTeam::AddPlayer"
 			{
 				"linux"		"209"
+				"linux64"	"209"
 				"windows"	"208"
+				"windows64"	"208"
 			}
 			"CTeam::RemovePlayer"
 			{
 				"linux"		"210"
+				"linux64"	"210"
 				"windows"	"209"
+				"windows64"	"209"
 			}
 			"CTFWeaponBase::ApplyOnInjuredAttributes"
 			{
 				"linux"		"425"
+				"linux64"	"425"
 				"windows"	"418"
+				"windows64"	"418"
 			}
 			"m_bitsDamageType"
 			{
 				"linux"		"60"
+				"linux64"	"60"
 				"windows"	"60"
+				"windows64"	"60"
 			}
 		}
 		"Functions"
