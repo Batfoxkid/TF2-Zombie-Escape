@@ -204,8 +204,6 @@ void Gamemode_InventoryApplication(int client, int userid)
 			}
 		}
 
-		SetEntProp(client, Prop_Send, "m_nForcedSkin", class == TFClass_Spy ? SKIN_ZOMBIE_SPY : SKIN_ZOMBIE);
-		SetEntProp(client, Prop_Send, "m_bForcedSkin", true);
 		SetEntProp(client, Prop_Send, "m_iPlayerSkinOverride", true);
 	}
 	else
@@ -235,8 +233,6 @@ void Gamemode_InventoryApplication(int client, int userid)
 			}
 		}
 
-		SetEntProp(client, Prop_Send, "m_nForcedSkin", 0);
-		SetEntProp(client, Prop_Send, "m_bForcedSkin", false);
 		SetEntProp(client, Prop_Send, "m_iPlayerSkinOverride", 0);
 	}
 
