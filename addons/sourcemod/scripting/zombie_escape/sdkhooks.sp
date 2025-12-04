@@ -281,8 +281,10 @@ public Action SDKHook_MaxHealth(int entity, int &maxhealth)
 	if(!Client(entity).Zombie)
 		return Plugin_Continue;
 	
-	maxhealth = 0;
-	SetEntityHealth(entity, -1);
+	maxhealth = Cvar[ZombieHealth].IntValue;
+	if(maxhealth < 1)
+		SetEntityHealth(entity, -1);
+	
 	return Plugin_Changed;
 }
 

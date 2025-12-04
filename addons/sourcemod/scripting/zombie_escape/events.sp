@@ -55,7 +55,7 @@ public Action Events_PlayerHurt(Event event, const char[] name, bool dontBroadca
 {
 	int userid = event.GetInt("userid");
 	int victim = GetClientOfUserId(userid);
-	if(victim && Client(victim).Zombie)
+	if(victim && Client(victim).Zombie && Cvar[ZombieHealth].IntValue < 1)
 	{
 		int attacker = GetClientOfUserId(event.GetInt("userid"));
 		if(attacker > 0 && attacker <= MaxClients)

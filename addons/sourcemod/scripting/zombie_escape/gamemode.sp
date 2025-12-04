@@ -83,6 +83,8 @@ void Gamemode_RoundStart()
 		if(!zombies)
 			zombies = 1;
 		
+		float stun = Cvar[ZombieStunStart].FloatValue;
+		
 		int i;
 		for(; i < zombies; i++)
 		{
@@ -92,8 +94,11 @@ void Gamemode_RoundStart()
 			TF2_RemovePlayerDisguise(player[i]);
 			SDKCall_ChangeClientTeam(player[i], TFTeam_Zombie);
 			TF2_RegeneratePlayer(player[i]);
-			TF2_StunPlayer(player[i], 15.0, 1.0, TF_STUNFLAGS_NORMALBONK);
-			TF2_AddCondition(player[i], TFCond_UberchargedCanteen, 15.0);
+			if(stun > 0.0)
+			{
+				TF2_StunPlayer(player[i], stun, 1.0, TF_STUNFLAGS_NORMALBONK);
+				TF2_AddCondition(player[i], TFCond_UberchargedCanteen, stun);
+			}
 		}
 
 		for(; i < players; i++)
@@ -246,7 +251,10 @@ public Action Timer_RestoreHealth(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if(client && IsPlayerAlive(client))
-		SetEntityHealth(client, SDKCall_GetMaxHealth(client));
+	{
+		if(!Client(client).Zombie || Cvar[ZombieHealth].IntValue > 0)
+			SetEntityHealth(client, SDKCall_GetMaxHealth(client));
+	}
 	
 	return Plugin_Continue;
 }
@@ -312,7 +320,7 @@ public void Gamemode_PlayerDeathFrame(DataPack pack)
 		InRespawn = false;
 
 		TeleportEntity(client, pos, ang, NULL_VECTOR);
-		TF2_StunPlayer(client, 5.0, 1.0, TF_STUNFLAGS_NORMALBONK);
+		TF2_StunPlayer(client, Cvar[ZombieStunSpawn].FloatValue, 1.0, TF_STUNFLAGS_NORMALBONK);
 	}
 
 	delete pack;

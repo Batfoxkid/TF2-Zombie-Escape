@@ -59,7 +59,10 @@ enum
 	ShieldDecay,
 	CrippleSpeed,
 
+	ZombieHealth,
 	ZombieUpward,
+	ZombieStunStart,
+	ZombieStunSpawn,
 	ZombieSlots,
 	
 	AllowSpectators,

@@ -43,7 +43,10 @@ void ConVar_PluginStart()
 	Cvar[CrippleSpeed] = CreateConVar("ze_game_cripple_speed", "300.0", "Amount of cripple damage to be fully immobile", _, true, 0.000001);
 	Cvar[CrippleHuman] = CreateConVar("ze_game_cripple_human", "1", "Human players are also affected by cripple damage", _, true, 0.0, true, 1.0);
 	Cvar[ZombieSlots] = CreateConVar("ze_zombie_weapon_slots", "1", "If zombies can be equip primary and secondary slots", _, true, 0.0, true, 1.0);
-	
+	Cvar[ZombieHealth] = CreateConVar("ze_zombie_health", "0", "Max health of a zombie, 0 for unlimited", _, true, 0.0);
+	Cvar[ZombieStunSpawn] = CreateConVar("ze_zombie_stun_turn", "5.0", "Stun duration when turning into a zombie", _, true, 0.0);
+	Cvar[ZombieStunStart] = CreateConVar("ze_zombie_stun_start", "15.0", "Stun duration for zombies at the start of a round", _, true, 0.0);
+
 	AutoExecConfig(false, "ZombieEscape");
 	
 	Cvar[AllowSpectators] = FindConVar("mp_allowspectators");
